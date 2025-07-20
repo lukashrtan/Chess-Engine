@@ -1,0 +1,32 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <Languages>
+        <language minSize="52" name="Python" />
+      </Languages>
+    </inspection_tool>
+    <inspection_tool class="PyShadowingBuiltinsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredNames">
+        <list>
+          <option value="input" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="str.pop" />
+          <option value="pgzero.screen.clear" />
+          <option value="main.clock" />
+          <option value="main.keys" />
+          <option value="main.screen" />
+          <option value="main.Rect" />
+          <option value="int.__setitem__" />
+          <option value="list.__getitem__" />
+          <option value="list.pop" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
