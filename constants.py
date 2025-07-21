@@ -101,6 +101,30 @@ class Moves:
                 positions.append(position - 9)
         return positions
 
+        return positions
+
+    def king(self, board, position):
+        positions = []
+        for i in range(3):
+            if board[position - 7 - i]  // self.color != 1 and position - 7 - i > -1 and abs(position % 8 - (position - 7 - i) % 8) < 2:
+                positions.append(position - 7 - i)
+            else:
+                break
+
+        for i in range(-1, 2, 2):
+            if board[position + i] // self.color != 1 and position + i < 64 and position + i > -1 and abs(position % 8 - (position + i) % 8) < 2:
+                positions.append(position + i)
+            else:
+                break
+
+        for i in range(3):
+            if board[position + 7 + i]  // self.color != 1 and position + 7 + i < 64 and abs(position % 8 - (position + 7 + i) % 8) < 2:
+                positions.append(position + 7 + i)
+            else:
+                break
+
+        return positions
+
 
 
     def knight(self, board, position):
