@@ -20,7 +20,7 @@ class Game:
                 print("HRAJE BILY")
             chess.move(colors[color])
             print(chess.__str__())
-            color *= 1
+            color *= -1
 
 
 
