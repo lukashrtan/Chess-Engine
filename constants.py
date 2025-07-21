@@ -15,31 +15,36 @@ WHITE_BISHOP = 106
 WHITE = 100
 BLACK = 200
 
-
+ROCK = 1
+PAWN = 2
+KING = 3
+QUEEN = 4
+KNIGHT = 5
+BISHOP = 6
 
 class Moves:
-    def Rock(self, board, position):
+    def rock(self, board, position):
         positions = []
         for x in range(1, 8):
-            if position + x * 8 < 64 and self.board[position + x * 8] == 0:
+            if position + x * 8 < 64 and board[position + x * 8] == 0:
                 positions.append(position + x * 8)
             else:
                 break
 
         for x in range(1, 8):
-            if position - x * 8 > 64 and self.board[position - x * 8] == 0:
-                positions.append(position + x * 8)
+            if position - x * 8 > 0 and board[position - x * 8] == 0:
+                positions.append(position - x * 8)
             else:
                 break
 
         for x in range(1, 8 - position % 8):
-            if self.board[position + x] == 0:
+            if board[position + x] == 0:
                 positions.append(position + x)
             else:
                 break
 
         for x in range(1, position % 8 + 1):
-            if self.board[position - x] == 0:
+            if board[position - x] == 0:
                 positions.append(position - x)
             else:
                 break

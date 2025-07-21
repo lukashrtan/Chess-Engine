@@ -1,6 +1,6 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
-                       BLACK, WHITE, UNICODE_CODING)
+                       BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN, BISHOP, KNIGHT, ROCK, KING)
 
 class Game:
     def __init__(self, mode):
@@ -53,22 +53,40 @@ class Chess:
             self.board[55 - x] = WHITE_PAWN
 
     def move(self, color):
-        pies = self.chose_pies(color)
+        piece = self.chose_pies(color)
 
         where = int(input("Kam chces tahnout?"))
 
 
-        self.board[where] = self.board[pies]
-        self.board[pies] = 0
+        self.board[where] = self.board[piece]
+        self.board[piece] = 0
 
     def chose_pies(self, color):
-        pies = -1
-        while True:
-            while self.board[pies] // color != 1 or pies == -1:
-                pies = int(input("Jakou chces figurku?"))
-            self.chose_position()
-        return pies
+        piece = 0
+        move = False
+        while not move:
+            while self.board[piece] // color != 1 and piece != 0:
+                piece = int(input("Jakou chces figurku?"))
+            move, piece = self.chose_position(piece, color)
+        return piece
 
-    def chose_position(self, pies):
-        PIEC_MOVE[pies].get
+    def chose_position(self, piece, color):
+        moves = Moves(color)
+        positions = []
+        if piece % color == ROCK:
+            positions = moves.rock(self.board, piece)
+        elif piece % color == PAWN:
+            positions = moves.pawn(self.board, piece)
+        elif piece % color == KING:
+            positions = moves.king(self.board, piece)
+        elif piece % color == QUEEN:
+            positions = moves.queen(self.board, piece)
+        elif piece % color == KNIGHT:
+            positions = moves.knight(self.board, piece)
+        elif piece % color == BISHOP:
+            positions = moves.bishop(self.board, piece)
+        position = input(f"Kam chces tahnout? Mozne pozice: {positions}")
+        if position in positions:
+            return True, position
+        return False, position
 
