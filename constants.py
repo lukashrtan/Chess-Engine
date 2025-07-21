@@ -23,32 +23,49 @@ KNIGHT = 5
 BISHOP = 6
 
 class Moves:
+    def __init__(self, color):
+        self.color = color
     def rock(self, board, position):
         positions = []
         for x in range(1, 8):
             if position + x * 8 < 64 and board[position + x * 8] == 0:
                 positions.append(position + x * 8)
-            else:
-                break
+                continue
+            elif board[position + x * 8] // self.color != 1:
+                positions.append(position + x * 8)
+            break
 
         for x in range(1, 8):
             if position - x * 8 > 0 and board[position - x * 8] == 0:
                 positions.append(position - x * 8)
-            else:
-                break
+                continue
+            elif board[position - x * 8] // self.color != 1:
+                positions.append(position - x * 8)
+            break
 
         for x in range(1, 8 - position % 8):
             if board[position + x] == 0:
                 positions.append(position + x)
-            else:
-                break
+                continue
+            elif board[position + x] // self.color != 1:
+                positions.append(position + x)
+            break
 
         for x in range(1, position % 8 + 1):
             if board[position - x] == 0:
                 positions.append(position - x)
-            else:
-                break
+                continue
+            elif board[position - x] // self.color != 1:
+                positions.append(position - x)
+            break
         return positions
+
+    def pown(self, board, position):
+        positions = []
+        if 7 < position > 16 and self.color == 200:
+            positions.append(position+8)
+
+
 
 
 
