@@ -62,10 +62,10 @@ class Chess:
         self.board[piece] = 0
 
     def chose_pies(self, color):
-        piece = 0
+        piece = -1
         move = False
         while not move:
-            while self.board[piece] // color != 1 and piece != 0:
+            while self.board[piece] // color != 1 or piece == -1:
                 piece = int(input("Jakou chces figurku?"))
             move, piece = self.chose_position(piece, color)
         return piece
@@ -73,19 +73,19 @@ class Chess:
     def chose_position(self, piece, color):
         moves = Moves(color)
         positions = []
-        if piece % color == ROCK:
+        if self.board[piece] % color == ROCK:
             positions = moves.rock(self.board, piece)
-        elif piece % color == PAWN:
+        elif self.board[piece] % color == PAWN:
             positions = moves.pawn(self.board, piece)
-        elif piece % color == KING:
+        elif self.board[piece] % color == KING:
             positions = moves.king(self.board, piece)
-        elif piece % color == QUEEN:
+        elif self.board[piece] % color == QUEEN:
             positions = moves.queen(self.board, piece)
-        elif piece % color == KNIGHT:
+        elif self.board[piece] % color == KNIGHT:
             positions = moves.knight(self.board, piece)
-        elif piece % color == BISHOP:
+        elif self.board[piece] % color == BISHOP:
             positions = moves.bishop(self.board, piece)
-        position = input(f"Kam chces tahnout? Mozne pozice: {positions}")
+        position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
         if position in positions:
             return True, position
         return False, position
