@@ -1,5 +1,5 @@
 import chess
-import pygame
+#import pygame
 
 mode = "input()"
 

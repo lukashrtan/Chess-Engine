@@ -65,8 +65,37 @@ class Moves:
 
     def pawn(self, board, position):
         positions = []
-        if 7 < position > 16 and self.color == 200:
-            positions.append(position+8)
+        if 7 < position < 16 and self.color == 200:
+            for x in range(1, 3):
+                if board[position + 8*x] == 0 and position + 8 * x < 64:
+                    positions.append(position+8*x)
+                else:
+                    break
+
+        elif 47 < position < 56 and self.color == 100:
+            for x in range(1, 3):
+                if board[position - 8*x] == 0 and position - 8 * x > -1:
+                    positions.append(position - 8*x)
+                else:
+                    break
+
+        elif self.color == 200:
+            if board[position + 8] == 0:
+                positions.append(position + 8)
+            if board[position + 7] // 200 != 1 and position % 8 != 0:
+                positions.append(position + 7)
+            if board[position + 9] // 200 != 1 and position % 8 != 7:
+                positions.append(position + 9)
+
+        elif self.color == 100:
+            if board[position - 8] == 0:
+                positions.append(position - 8)
+            if board[position - 7] // 200 != 1 and position % 8 != 7:
+                positions.append(position - 7)
+            if board[position - 9] // 200 != 1 and position % 8 != 0:
+                positions.append(position - 9)
+
+
 
     def knight(self, board, position):
         positions = []
