@@ -1,6 +1,7 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
-                       BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN, BISHOP, KNIGHT, ROCK, KING)
+                       BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN, BISHOP, KNIGHT, ROCK, KING,
+                       SWITCHABLE)
 
 class Game:
     def __init__(self, mode):
@@ -10,10 +11,16 @@ class Game:
         chess = Chess()
         chess.create_board()
         print(chess.__str__())
+        colors = [None, WHITE, BLACK]
+        color = 1
         while True:
-            chess.move(BLACK)
+            if colors[color] == BLACK:
+                print("HRAJE CERNY")
+            else:
+                print("HRAJE BILY")
+            chess.move(colors[color])
             print(chess.__str__())
-        pass
+            color *= 1
 
 
 
@@ -53,22 +60,23 @@ class Chess:
             self.board[55 - x] = WHITE_PAWN
 
     def move(self, color):
-        piece = self.chose_pies(color)
-
-        where = int(input("Kam chces tahnout?"))
-
-
+        piece, where = self.chose_pies(color)
         self.board[where] = self.board[piece]
         self.board[piece] = 0
+        if self.board[where] - color == PAWN and where // 8 in (0, 7):
+            self.board[where] = self.choose_piece(color)
+
 
     def chose_pies(self, color):
         piece = -1
         move = False
+        to_move = -1
         while not move:
+            piece = to_move
             while self.board[piece] // color != 1 or piece == -1:
                 piece = int(input("Jakou chces figurku?"))
-            move, piece = self.chose_position(piece, color)
-        return piece
+            move, to_move = self.chose_position(piece, color)
+        return piece, to_move
 
     def chose_position(self, piece, color):
         moves = Moves(color)
@@ -89,4 +97,10 @@ class Chess:
         if position in positions:
             return True, position
         return False, position
+
+    def choose_piece(self, color):
+        while True:
+            piece = int(input("Za jakou figurku chces vymenit pesaka?"))
+            if piece not in SWITCHABLE: continue
+            return color + piece
 

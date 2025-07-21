@@ -22,6 +22,13 @@ QUEEN = 4
 KNIGHT = 5
 BISHOP = 6
 
+SWITCHABLE = [
+    KNIGHT,
+    BISHOP,
+    ROCK,
+    QUEEN,
+]
+
 class Moves:
     def __init__(self, color):
         self.color = color
@@ -65,35 +72,34 @@ class Moves:
 
     def pawn(self, board, position):
         positions = []
-        if 7 < position < 16 and self.color == 200:
-            for x in range(1, 3):
-                if board[position + 8*x] == 0 and position + 8 * x < 64:
-                    positions.append(position+8*x)
+        jump_to = 2
+
+        if self.color == BLACK:
+            if 7 < position < 16 and self.color == BLACK:
+                jump_to = 3
+            for x in range(1, jump_to):
+                if board[position + 8 * x] == 0 and position + 8 * x < 64:
+                    positions.append(position + 8 * x)
                 else:
                     break
-
-        elif 47 < position < 56 and self.color == 100:
-            for x in range(1, 3):
-                if board[position - 8*x] == 0 and position - 8 * x > -1:
-                    positions.append(position - 8*x)
-                else:
-                    break
-
-        elif self.color == 200:
-            if board[position + 8] == 0:
-                positions.append(position + 8)
-            if board[position + 7] // 200 != 1 and position % 8 != 0:
+            if board[position + 7] // WHITE == 1 and position % 8 != 0:
                 positions.append(position + 7)
-            if board[position + 9] // 200 != 1 and position % 8 != 7:
+            if board[position + 9] // WHITE == 1 and position % 8 != 7:
                 positions.append(position + 9)
 
-        elif self.color == 100:
-            if board[position - 8] == 0:
-                positions.append(position - 8)
-            if board[position - 7] // 200 != 1 and position % 8 != 7:
+        elif self.color == WHITE:
+            if 47 < position < 56 and self.color == WHITE:
+                jump_to = 3
+            for x in range(1, jump_to):
+                if board[position - 8 * x] == 0:
+                    positions.append(position - 8 * x)
+                else:
+                    break
+            if board[position - 7] // BLACK == 1 and position % 8 != 7:
                 positions.append(position - 7)
-            if board[position - 9] // 200 != 1 and position % 8 != 0:
+            if board[position - 9] // BLACK == 1 and position % 8 != 0:
                 positions.append(position - 9)
+        return positions
 
 
 
