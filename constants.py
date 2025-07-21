@@ -201,6 +201,6 @@ UNICODE_CODING = {
     BLACK_KNIGHT: "♞",
     BLACK_BISHOP: "♝",
 
-    0: "  "
+    0: " "
 }
 
