@@ -110,7 +110,7 @@ class Moves:
                 positions.append(position - 7 - i)
 
         for i in range(-1, 2, 2):
-            if  position + i < 64 and position + i > -1 and board[position + i] // self.color != 1 and abs(position % 8 - (position + i) % 8) < 2:
+            if  64 > position + i > -1 and board[position + i] // self.color != 1 and abs(position % 8 - (position + i) % 8) < 2:
                 positions.append(position + i)
 
         for i in range(3):
@@ -200,6 +200,24 @@ UNICODE_CODING = {
     BLACK_ROCK: "♜",
     BLACK_KNIGHT: "♞",
     BLACK_BISHOP: "♝",
+
+    0: " "
+}
+
+WINDOWS_UNICODE_CODING = {
+    WHITE_ROCK: "r",
+    WHITE_PAWN: "p",
+    WHITE_KING: "k",
+    WHITE_QUEEN: "q",
+    WHITE_KNIGHT: "n",
+    WHITE_BISHOP: "b",
+
+    BLACK_QUEEN: "Q",
+    BLACK_PAWN: "P",
+    BLACK_KING: "K",
+    BLACK_ROCK: "R",
+    BLACK_KNIGHT: "N",
+    BLACK_BISHOP: "B",
 
     0: " "
 }

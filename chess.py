@@ -1,11 +1,13 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
-                       BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN, BISHOP, KNIGHT, ROCK, KING,
-                       SWITCHABLE)
+                       BLACK, WHITE, UNICODE_CODING, WINDOWS_UNICODE_CODING, Moves, PAWN, QUEEN,
+                       BISHOP, KNIGHT, ROCK, KING, SWITCHABLE)
+import pygame
 
 class Game:
     def __init__(self, mode):
         self.mode = mode
+        self.drawer = Drawer()
 
     def start(self):
         chess = Chess()
@@ -14,6 +16,7 @@ class Game:
         colors = [None, WHITE, BLACK]
         color = 1
         while True:
+            self.drawer.draw(chess.board)
             if colors[color] == BLACK:
                 print("HRAJE CERNY")
             else:
@@ -21,6 +24,26 @@ class Game:
             chess.move(colors[color])
             print(chess.__str__())
             color *= -1
+
+class Drawer:
+    def __init__(self):
+        self.screen = pygame.display.set_mode((100 * 8, 100 * 8))
+        pygame.font.init()
+        self.font = pygame.font.SysFont("dejavu sans", 80)
+        pygame.init()
+
+    def draw(self, board):
+        self.screen.fill("black")
+        for y in range(8):
+            for x in range(8):
+                pos = y * 8 + x
+                if (x + y) % 2 == 0:
+                    pygame.draw.rect(self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100))
+                else:
+                    pygame.draw.rect(self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100))
+                self.screen.blit(self.font.render(WINDOWS_UNICODE_CODING[board[pos]], True, (0, 0, 0)), (x * 100 + 20, y * 100))
+        pygame.display.flip()
+
 
 
 
@@ -30,11 +53,11 @@ class Chess:
         self.board = [0 for x in range(64)]
 
     def __str__(self):
-        string = ""
+        string = "|"
         for i, pies in enumerate(self.board):
             if i % 8 == 0 and i != 0:
-                string += "\n"
-            string += UNICODE_CODING[pies] + " | "
+                string += "\n|"
+            string += UNICODE_CODING[pies] + "|"
         return string
 
     def create_board(self):
@@ -76,6 +99,8 @@ class Chess:
             while self.board[piece] // color != 1 or piece == -1:
                 x, y = input("Jakou chces figurku?")
                 piece = (ord(x)-97) + int(y)*8
+                piece = int(input("Jakou chces figurku?"))
+                piece = self.event_listener()
             move, to_move = self.chose_position(piece, color)
         return piece, to_move
 
@@ -99,6 +124,8 @@ class Chess:
             positionsSachy.append(chr((positions[i] % 8) + 97) + str(positions[i] // 8))
         x, y = input(f"Kam chces tahnout? Mozne pozice: {positionsSachy}")
         position = (ord(x)-97) + int(y)*8
+        position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
+        position = self.event_listener()
         if position in positions:
             return True, position
         return False, position
@@ -106,6 +133,18 @@ class Chess:
     def choose_piece(self, color):
         while True:
             piece = int(input("Za jakou figurku chces vymenit pesaka?"))
+            piece = self.event_listener()
             if piece not in SWITCHABLE: continue
             return color + piece
+
+    def event_listener(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return -1
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    position = pygame.mouse.get_pos()
+                    position = position[0] // 100 + position[1] // 100 * 8
+                    return position
 
