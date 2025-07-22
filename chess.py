@@ -1,56 +1,65 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
                        BLACK, WHITE, UNICODE_CODING, WINDOWS_UNICODE_CODING, Moves, PAWN, QUEEN,
-                       BISHOP, KNIGHT, ROCK, KING, SWITCHABLE)
+                       BISHOP, KNIGHT, ROCK, KING, SWITCHABLE, POSSIBLE_COLORS)
 import pygame
 
 class Game:
     def __init__(self, mode):
         self.mode = mode
-        self.drawer = Drawer()
+        self.draw_mode = input("Jak chces vykreslovat sachovnici? Metod: konzole, Lukas: aplikace")
+        self.drawer = Drawer(self.draw_mode)
 
     def start(self):
-        chess = Chess()
+        chess = Chess(self.draw_mode)
         chess.create_board()
-        print(chess.__str__())
-        colors = [None, WHITE, BLACK]
-        color = 1
+        color = 0
         while True:
             self.drawer.draw(chess.board)
-            if colors[color] == BLACK:
+            if POSSIBLE_COLORS[color] == BLACK:
                 print("HRAJE CERNY")
             else:
                 print("HRAJE BILY")
-            chess.move(colors[color])
-            print(chess.__str__())
-            color *= -1
+            chess.move(POSSIBLE_COLORS[color])
+            color = abs(color - 1)
 
 class Drawer:
-    def __init__(self):
+    def __init__(self, mode):
+        self.mode = mode
+        if self.mode != "Lukas": pass
         self.screen = pygame.display.set_mode((100 * 8, 100 * 8))
         pygame.font.init()
-        self.font = pygame.font.SysFont("dejavu sans", 80)
+        self.font = pygame.font.Font("./font/DejaVuSans.ttf", 80) #segoeuisymbol
         pygame.init()
 
     def draw(self, board):
-        self.screen.fill("black")
-        for y in range(8):
-            for x in range(8):
-                pos = y * 8 + x
-                if (x + y) % 2 == 0:
-                    pygame.draw.rect(self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100))
-                else:
-                    pygame.draw.rect(self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100))
-                self.screen.blit(self.font.render(WINDOWS_UNICODE_CODING[board[pos]], True, (0, 0, 0)), (x * 100 + 20, y * 100))
-        pygame.display.flip()
+        if self.mode == "Lukas":
+            self.screen.fill("black")
+            for y in range(8):
+                for x in range(8):
+                    pos = y * 8 + x
+                    if (x + y) % 2 == 0:
+                        pygame.draw.rect(self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100))
+                    else:
+                        pygame.draw.rect(self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100))
+                    self.screen.blit(self.font.render(UNICODE_CODING[board[pos]], True, (0, 0, 0)), (x * 100 + 10, y * 100 + 5))
+            pygame.display.flip()
+        else:
+            string = "|"
+            for i, pies in enumerate(board):
+                if i % 8 == 0 and i != 0:
+                    string += "\n|"
+                string += UNICODE_CODING[pies] + "|"
+            print(string)
 
 
 
 
 
 class Chess:
-    def __init__(self):
+    def __init__(self, draw_mode):
         self.board = [0 for x in range(64)]
+        self.draw_mode = draw_mode
 
     def __str__(self):
         string = "|"
@@ -97,17 +106,18 @@ class Chess:
         while not move:
             piece = to_move
             while self.board[piece] // color != 1 or piece == -1:
-                x, y = input("Jakou chces figurku?")
-                piece = (ord(x)-97) + int(y)*8
-                piece = int(input("Jakou chces figurku?"))
-                piece = self.event_listener()
+                piece = self.event_listener("Jakou chces figurku?")
+                if type(piece) is str:
+                    x, y = piece
+                    piece = (ord(x)-97) + int(y)*8
+                # piece = int(input("Jakou chces figurku?"))
             move, to_move = self.chose_position(piece, color)
         return piece, to_move
 
     def chose_position(self, piece, color):
         moves = Moves(color)
         positions = []
-        positionsSachy = []
+        possible_moves = []
         if self.board[piece] % color == ROCK:
             positions = moves.rock(self.board, piece)
         elif self.board[piece] % color == PAWN:
@@ -121,30 +131,35 @@ class Chess:
         elif self.board[piece] % color == BISHOP:
             positions = moves.bishop(self.board, piece)
         for i in range(len(positions)):
-            positionsSachy.append(chr((positions[i] % 8) + 97) + str(positions[i] // 8))
-        x, y = input(f"Kam chces tahnout? Mozne pozice: {positionsSachy}")
-        position = (ord(x)-97) + int(y)*8
-        position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
-        position = self.event_listener()
+            possible_moves.append(chr((positions[i] % 8) + 97) + str(positions[i] // 8))
+        position = self.event_listener(f"Kam chces tahnout? Mozne pozice: {possible_moves}")
+        if type(position) is str:
+            x, y = position
+            position = (ord(x) - 97) + int(y) * 8
+        # position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
         if position in positions:
             return True, position
         return False, position
 
     def choose_piece(self, color):
         while True:
-            piece = int(input("Za jakou figurku chces vymenit pesaka?"))
-            piece = self.event_listener()
+            # piece = int(input("Za jakou figurku chces vymenit pesaka?"))
+            piece = self.event_listener("Za jakou figurku chces vymenit pesaka")
             if piece not in SWITCHABLE: continue
             return color + piece
 
-    def event_listener(self):
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return -1
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    position = pygame.mouse.get_pos()
-                    position = position[0] // 100 + position[1] // 100 * 8
-                    return position
+    def event_listener(self, input_message):
+        if self.draw_mode == "Lukas":
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return -1
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        position = pygame.mouse.get_pos()
+                        position = position[0] // 100 + position[1] // 100 * 8
+                        return position
+        else:
+            data = input(input_message)
+            return data
 
