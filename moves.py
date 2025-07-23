@@ -28,43 +28,50 @@ class Move:
     promo: int | None = None
 
 
-def check_detection(board: Board, curr_pos: int, to: int) -> bool:
-    color = board[curr_pos] - board[curr_pos] % UNCOLOR
-    deleted_place, board[to], board[curr_pos] = board[to], board[curr_pos], 0
-    possible_moves = {"bishop": [], "knight": [], "rock": [], "pawn": []}
-    king_pos = 0
-    for x in range(len(board.board)):
-        if board[x] - color == KING:
-            possible_moves["bishop"] = bishop(board, x)
-            possible_moves["knight"] = knight(board, x)
-            possible_moves["rock"] = rock(board, x)
-            possible_moves["pawn"] = pawn(board, x)
-            king_pos = x
+def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
+    color = board[from_pos] - board[from_pos] % UNCOLOR
+    if from_pos == to_pos:
+        deleted_place = board[to_pos]
+    else:
+        deleted_place, board[to_pos], board[from_pos] = board[to_pos], board[from_pos], 0
+    for pos in range(len(board.board)):
+        if board[pos] - color == KING:
+            bishop_moves = bishop(board, pos)
+            knight_moves = knight(board, pos)
+            rock_moves = rock(board, pos)
+            pawn_moves = pawn(board, pos)
+            king_pos = pos
             break
-    board[to], board[curr_pos] = deleted_place, board[to]
-    for x in possible_moves["bishop"]:
+    else:
+        raise AssertionError()
+    board[to_pos], board[from_pos] = deleted_place, board[to_pos]
+    for move in bishop_moves:
+        to = move.to
         if (
-            board[x] - SWITCH_COLOR[color] == BISHOP
-            or board[x] - SWITCH_COLOR[color] == QUEEN
-        ) and SWITCH_COLOR[color] == board[x] - board[x] % UNCOLOR:
+            board[to] - SWITCH_COLOR[color] == BISHOP
+            or board[to] - SWITCH_COLOR[color] == QUEEN
+        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
             return False
-    for x in possible_moves["knight"]:
+    for move in knight_moves:
+        to = move.to
         if (
-            board[x] - SWITCH_COLOR[color] == KNIGHT
-            and SWITCH_COLOR[color] == board[x] - board[x] % UNCOLOR
+            board[to] - SWITCH_COLOR[color] == KNIGHT
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
         ):
             return False
-    for x in possible_moves["rock"]:
+    for move in rock_moves:
+        to = move.to
         if (
-            board[x] - SWITCH_COLOR[color] == ROCK
-            or board[x] - SWITCH_COLOR[color] == QUEEN
-        ) and SWITCH_COLOR[color] == board[x] - board[x] % UNCOLOR:
+            board[to] - SWITCH_COLOR[color] == ROCK
+            or board[to] - SWITCH_COLOR[color] == QUEEN
+        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
             return False
-    for x in possible_moves["pawn"]:
+    for move in pawn_moves:
+        to = move.to
         if (
-            board[x] - SWITCH_COLOR[color] == PAWN
-            and SWITCH_COLOR[color] == board[x] - board[x] % UNCOLOR
-            and x % 8 - king_pos % 8 != 0
+            board[to] - SWITCH_COLOR[color] == PAWN
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
+            and to % 8 - king_pos % 8 != 0
         ):
             return False
     return True
@@ -72,11 +79,7 @@ def check_detection(board: Board, curr_pos: int, to: int) -> bool:
 
 def available_moves(board: Board) -> Generator[Move]:
     for move in all_moves(board):
-        subboard = board.clone()
-        subboard.move(move)
-
-        king_under_attack = False  # TODO
-
+        king_under_attack = check_detection(board, move.fr, move.to)
         if king_under_attack:
             continue
         else:
@@ -278,33 +281,12 @@ def queen(board: Board, position: int) -> Generator[Move]:
     yield from bishop(board, position)
 
 
-def check_mate(board, curr_pos, to):
-    color = board[curr_pos] - board[curr_pos] % UNCOLOR
-    deleted_place = board[to]
-    board[to], board[curr_pos] = board[curr_pos], 0
-    possible_moves = {}
-
-    for i, x in enumerate(board):
-        if x % UNCOLOR == ROCK:
-            possible_moves[i] = rock(board, i, False)
-        elif x % UNCOLOR == PAWN:
-            possible_moves[i] = pawn(board, i, False)
-        elif x % UNCOLOR == KNIGHT:
-            possible_moves[i] = knight(board, i, False)
-        elif x % UNCOLOR == BISHOP:
-            possible_moves[i] = bishop(board, i, False)
-        elif x % UNCOLOR == QUEEN:
-            possible_moves[i] = queen(board, i, False)
-        elif x % UNCOLOR == KING:
-            possible_moves[i] = king(board, i, pieces_moved, False)
-    for piece in list(possible_moves):
-        for pos in possible_moves[piece]:
-            if board[pos] % UNCOLOR == KING:
-                board[to], board[curr_pos] = deleted_place, board[to]
-                if board[curr_pos] // color == 1:
-                    return False
-    board[to], board[curr_pos] = deleted_place, board[to]
-    return True
+def check_mate(board: Board, king_pos: int) -> bool|None:
+    if not available_moves(board):
+        if check_detection(board, king_pos, king_pos):
+            return None
+        return True
+    return False
 
 
 def all_moves(board: Board) -> Generator[Move]:
