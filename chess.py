@@ -93,10 +93,25 @@ class Chess:
 
     def move(self, color):
         piece, where = self.chose_pies(color)
-        self.board[where] = self.board[piece]
-        self.board[piece] = 0
+        if self.board[piece] % color == KING and piece-where == 2:
+            self.board[where] = self.board[piece]
+            self.board[piece] = 0
+            self.board[where+1] = self.board[piece-4]
+            self.board[piece-4] = 0
+        elif self.board[piece] % color == KING and where-piece == 2:
+            self.board[where] = self.board[piece]
+            self.board[piece] = 0
+            self.board[where-1] = self.board[piece+3]
+            self.board[piece+3] = 0
+        else:
+            self.board[where] = self.board[piece]
+            self.board[piece] = 0
         if self.board[where] - color == PAWN and where // 8 in (0, 7):
             self.board[where] = self.choose_piece(color)
+        try:
+            self.pieces_moved[piece] = True
+        except Exception:
+            pass
 
 
     def chose_pies(self, color):
@@ -109,7 +124,7 @@ class Chess:
                 piece = self.event_listener("Jakou chces figurku?")
                 if type(piece) is str:
                     x, y = piece
-                    piece = (ord(x)-97) + int(y)*8
+                    piece = (ord(x)-97) + (8 - int(y))*8
                 # piece = int(input("Jakou chces figurku?"))
             move, to_move = self.chose_position(piece, color)
         return piece, to_move
@@ -118,12 +133,20 @@ class Chess:
         moves = Moves(color)
         positions = []
         possible_moves = []
+        self.pieces_moved = {
+            0: False,
+            4: False,
+            7: False,
+            56: False,
+            60: False,
+            63: False,
+        }
         if self.board[piece] % color == ROCK:
             positions = moves.rock(self.board, piece)
         elif self.board[piece] % color == PAWN:
             positions = moves.pawn(self.board, piece)
         elif self.board[piece] % color == KING:
-            positions = moves.king(self.board, piece)
+            positions = moves.king(self.board, piece, self.pieces_moved)
         elif self.board[piece] % color == QUEEN:
             positions = moves.queen(self.board, piece)
         elif self.board[piece] % color == KNIGHT:
@@ -131,11 +154,11 @@ class Chess:
         elif self.board[piece] % color == BISHOP:
             positions = moves.bishop(self.board, piece)
         for i in range(len(positions)):
-            possible_moves.append(chr((positions[i] % 8) + 97) + str(positions[i] // 8))
+            possible_moves.append(chr((positions[i] % 8) + 97) + str(8 - (positions[i] // 8)))
         position = self.event_listener(f"Kam chces tahnout? Mozne pozice: {possible_moves}")
         if type(position) is str:
             x, y = position
-            position = (ord(x) - 97) + int(y) * 8
+            position = (ord(x) - 97) + (8 - int(y)) * 8
         # position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
         if position in positions:
             return True, position

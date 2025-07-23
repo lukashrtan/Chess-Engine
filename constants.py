@@ -1,3 +1,5 @@
+from http.cookiejar import offset_from_tz_string
+
 BLACK_ROCK = 201
 BLACK_PAWN = 202
 BLACK_KING = 203
@@ -34,6 +36,7 @@ SWITCHABLE = [
 class Moves:
     def __init__(self, color):
         self.color = color
+
     def rock(self, board, position):
         positions = []
         for x in range(1, 8):
@@ -103,10 +106,17 @@ class Moves:
                 positions.append(position - 9)
         return positions
 
-        return positions
-
-    def king(self, board, position):
+    def king(self, board, position, pieces_moved):
         positions = []
+        try:
+            if pieces_moved[position] == False and pieces_moved[position-4] == False and board[position-1] == 0 and board[position-2] == 0 and board[position-3] == 0:
+                positions.append(position - 2)
+                print("rasada")
+            if pieces_moved[position] == False and pieces_moved[position+3] == False and board[position+1] == 0 and board[position+2] == 0:
+                positions.append(position + 2)
+                print("rasada")
+        except Exception:
+            pass
         for i in range(3):
             if position - 7 - i > -1 and board[position - 7 - i]  // self.color != 1 and abs(position % 8 - (position - 7 - i) % 8) < 2:
                 positions.append(position - 7 - i)
