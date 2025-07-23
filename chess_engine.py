@@ -1,7 +1,7 @@
-from moves import Moves
+from moves import Move
 
 def computer_move(self, board, color):
-    moves = Moves(self.pieces_moved)
+    moves = Move(self.pieces_moved)
     positions = moves.all_moves(board, color)
 
 

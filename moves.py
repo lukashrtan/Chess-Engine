@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator
-from board import Board
+from typing import Generator, TYPE_CHECKING
 from constants import (
     UNCOLOR,
     BLACK,
@@ -19,6 +18,9 @@ from constants import (
     LEFT,
 )
 from tile import fileA, fileH, rank2, rank7
+
+if TYPE_CHECKING:
+    from board import Board
 
 
 @dataclass(frozen=True)
@@ -77,7 +79,7 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
     return True
 
 
-def available_moves(board: Board) -> Generator[Move]:
+def available_moves(board: "Board") -> Generator[Move, None, None]:
     for move in all_moves(board):
         king_under_attack = check_detection(board, move.fr, move.to)
         if king_under_attack:
@@ -86,7 +88,7 @@ def available_moves(board: Board) -> Generator[Move]:
             yield move
 
 
-def rock(board: Board, pos: int) -> Generator[Move]:
+def rock(board: "Board", pos: int) -> Generator[Move, None, None]:
     color = board[pos] - (board[pos] % UNCOLOR)
 
     for x in range(1, 8):
@@ -128,7 +130,7 @@ def rock(board: Board, pos: int) -> Generator[Move]:
         break
 
 
-def pawn(board: Board, pos: int) -> Generator[Move]:
+def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
     color = board[pos] - board[pos] % UNCOLOR
     jump_to = 2
 
@@ -159,7 +161,7 @@ def pawn(board: Board, pos: int) -> Generator[Move]:
             yield Move(pos, pos + UP + RIGHT)
 
 
-def king(board: Board, position: int) -> Generator[Move]:
+def king(board: "Board", position: int) -> Generator[Move, None, None]:
     color = board[position] - board[position] % UNCOLOR
 
     if (
@@ -209,7 +211,7 @@ def king(board: Board, position: int) -> Generator[Move]:
             yield Move(position, position + 7 + i)
 
 
-def knight(board, position: int) -> Generator[Move]:
+def knight(board, position: int) -> Generator[Move, None, None]:
     color = board[position] - board[position] % UNCOLOR
     for i in (UP + UP, DOWN + DOWN):
         if position + i < 0 or position + i > 63:
@@ -229,7 +231,7 @@ def knight(board, position: int) -> Generator[Move]:
                 yield Move(position, position + i + j)
 
 
-def bishop(board: Board, position: int) -> Generator[Move]:
+def bishop(board: "Board", position: int) -> Generator[Move, None, None]:
     color = board[position] - board[position] % UNCOLOR
     for x in range(1, 8):
         p = position + x * (DOWN + RIGHT)
@@ -276,7 +278,7 @@ def bishop(board: Board, position: int) -> Generator[Move]:
         break
 
 
-def queen(board: Board, position: int) -> Generator[Move]:
+def queen(board: "Board", position: int) -> Generator[Move, None, None]:
     yield from rock(board, position)
     yield from bishop(board, position)
 
@@ -289,7 +291,7 @@ def check_mate(board: Board, king_pos: int) -> bool|None:
     return False
 
 
-def all_moves(board: Board) -> Generator[Move]:
+def all_moves(board: "Board") -> Generator[Move, None, None]:
     for i, tile in enumerate(board.board):
         if tile // board.color == 1:
             piece = tile % board.color

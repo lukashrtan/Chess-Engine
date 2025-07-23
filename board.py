@@ -56,7 +56,7 @@ class Board:
         b.board[F8] = BLACK_BISHOP
         b.board[G8] = BLACK_KNIGHT
         b.board[H8] = BLACK_ROCK
-        for tile in rank2:
+        for tile in rank7:
             b.board[tile] = BLACK_PAWN
         b.board[A1] = WHITE_ROCK
         b.board[B1] = WHITE_KNIGHT
@@ -66,7 +66,7 @@ class Board:
         b.board[F1] = WHITE_BISHOP
         b.board[G1] = WHITE_KNIGHT
         b.board[H1] = WHITE_ROCK
-        for tile in rank7:
+        for tile in rank2:
             b.board[tile] = WHITE_PAWN
 
         return b
