@@ -12,6 +12,8 @@ WHITE_QUEEN = 104
 WHITE_KNIGHT = 105
 WHITE_BISHOP = 106
 
+UNCOLOR = 100
+
 WHITE = 100
 BLACK = 200
 
@@ -215,13 +217,17 @@ class Moves:
         possible_moves = {
             "bishop": [],
             "knight": [],
-            "rock": []
+            "rock": [],
+            "pawn": []
         }
+        king_pos = 0
         for x in range(len(board)):
             if board[x] - color == KING:
                 possible_moves["bishop"] = self.bishop(board, x, False)
                 possible_moves["knight"] = self.knight(board, x, False)
                 possible_moves["rock"] = self.rock(board, x, False)
+                possible_moves["pawn"] = self.pawn(board, x, False)
+                king_pos = x
                 break
         board[to], board[curr_pos] = deleted_place, board[to]
         for x in possible_moves["bishop"]:
@@ -233,9 +239,12 @@ class Moves:
         for x in possible_moves["rock"]:
             if (board[x] - SWITCH_COLOR[color] == ROCK or board[x] - SWITCH_COLOR[color] == QUEEN) and SWITCH_COLOR[color] == board[x] - board[x] % 100:
                 return False
+        for x in possible_moves["pawn"]:
+            if board[x] - SWITCH_COLOR[color] == PAWN and SWITCH_COLOR[color] == board[x] - board[x] % 100 and x % 8 - king_pos % 8 != 0:
+                return False
         return True
 
-    def _(self, board, curr_pos, to):
+    def check_mate(self, board, curr_pos, to):
         color = board[curr_pos] - board[curr_pos] % 100
         deleted_place = board[to]
         board[to], board[curr_pos] = board[curr_pos], 0

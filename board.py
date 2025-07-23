@@ -1,7 +1,7 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
                        BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN,
-                       BISHOP, KNIGHT, ROCK, KING, SWITCHABLE, POSSIBLE_COLORS)
+                       BISHOP, KNIGHT, ROCK, KING, SWITCHABLE, POSSIBLE_COLORS, UNCOLOR)
 import pygame
 
 class Game:
@@ -11,7 +11,7 @@ class Game:
         self.drawer = Drawer(self.draw_mode)
 
     def start(self):
-        chess = Chess(self.draw_mode)
+        chess = Board(self.draw_mode)
         chess.create_board()
         color = 0
         while True:
@@ -54,9 +54,11 @@ class Drawer:
 
 
 
+def gen_moves(board):
+    # self.chose_pies(color)
+    return []
 
-
-class Chess:
+class Board:
     def __init__(self, draw_mode):
         self.board = [0 for _ in range(64)]
         self.draw_mode = draw_mode
@@ -67,6 +69,11 @@ class Chess:
             56: False,
             60: False,
             63: False,
+        }
+        self.moves = Moves(self.pieces_moved)
+        self.kings_pos = {
+            BLACK_KING: 4,
+            WHITE_KING: 60,
         }
 
     def __str__(self):
@@ -99,27 +106,28 @@ class Chess:
         for x in range(8):
             self.board[55 - x] = WHITE_PAWN
 
-    def move(self, color):
-        piece, where = self.chose_pies(color)
-        if self.board[piece] % color == KING and piece-where == 2:
-            self.board[where] = self.board[piece]
-            self.board[piece] = 0
-            self.board[where+1] = self.board[piece-4]
-            self.board[piece-4] = 0
-        elif self.board[piece] % color == KING and where-piece == 2:
-            self.board[where] = self.board[piece]
-            self.board[piece] = 0
-            self.board[where-1] = self.board[piece+3]
-            self.board[piece+3] = 0
+    def move(self, move_from, move_to, move_promo):
+        if self.board[move_from] % UNCOLOR == KING and move_from - move_to == 2:
+            self.board[move_to] = self.board[move_from]
+            self.board[move_from] = 0
+            self.board[move_to + 1] = self.board[move_from - 4]
+            self.board[move_from - 4] = 0
+        elif self.board[move_from] % UNCOLOR == KING and move_to - move_from == 2:
+            self.board[move_to] = self.board[move_from]
+            self.board[move_from] = 0
+            self.board[move_to - 1] = self.board[move_from + 3]
+            self.board[move_from + 3] = 0
         else:
-            self.board[where] = self.board[piece]
-            self.board[piece] = 0
-        if self.board[where] - color == PAWN and where // 8 in (0, 7):
-            self.board[where] = self.choose_piece(color)
+            self.board[move_to] = self.board[move_from]
+            self.board[move_from] = 0
+        if self.board[move_to] % UNCOLOR == PAWN and move_to // 8 in (0, 7):
+            self.board[move_to] = self.choose_piece(move_promo)
         try:
-            self.pieces_moved[piece] = True
+            self.pieces_moved[move_from] = True
         except Exception:
             pass
+        if not self.moves.king(self.board, self.kings_pos[BLACK_KING], self.pieces_moved) or not self.moves.king(self.board, self.kings_pos[WHITE_KING], self.pieces_moved):
+            self.moves.check_mate()
 
 
     def chose_pies(self, color):
@@ -138,21 +146,20 @@ class Chess:
         return piece, to_move
 
     def chose_position(self, piece, color):
-        moves = Moves(self.pieces_moved)
         positions = []
         possible_moves = []
         if self.board[piece] % color == ROCK:
-            positions = moves.rock(self.board, piece)
+            positions = self.moves.rock(self.board, piece)
         elif self.board[piece] % color == PAWN:
-            positions = moves.pawn(self.board, piece)
+            positions = self.moves.pawn(self.board, piece)
         elif self.board[piece] % color == KING:
-            positions = moves.king(self.board, piece, self.pieces_moved)
+            positions = self.moves.king(self.board, piece, self.pieces_moved)
         elif self.board[piece] % color == QUEEN:
-            positions = moves.queen(self.board, piece)
+            positions = self.moves.queen(self.board, piece)
         elif self.board[piece] % color == KNIGHT:
-            positions = moves.knight(self.board, piece)
+            positions = self.moves.knight(self.board, piece)
         elif self.board[piece] % color == BISHOP:
-            positions = moves.bishop(self.board, piece)
+            positions = self.moves.bishop(self.board, piece)
         for i in range(len(positions)):
             possible_moves.append(chr((positions[i] % 8) + 97) + str(8 - (positions[i] // 8)))
         position = self.event_listener(f"Kam chces tahnout? Mozne pozice: {possible_moves}")

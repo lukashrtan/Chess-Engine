@@ -1,4 +1,4 @@
-import chess
+import board
 
 mode = "input()"
 
