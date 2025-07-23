@@ -1,4 +1,4 @@
-from constants import Moves
+from moves import Moves
 
 def computer_move(self, board, color):
     moves = Moves(self.pieces_moved)
