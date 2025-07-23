@@ -102,10 +102,8 @@ class Game:
             60: False,
             63: False,
         }
-        self.kings_pos = {
-            BLACK_KING: 4,
-            WHITE_KING: 60,
-        }
+        self.black_king = 4
+        self.white_king = 60
 
     def start(self):
         chess = Board(self.draw_mode)
@@ -121,9 +119,7 @@ class Game:
                 print("HRAJE BILY")
             self.get_move(POSSIBLE_COLORS[color])
             color = abs(color - 1)
-            if not self.moves.king(self.board, self.kings_pos[BLACK_KING], self.pieces_moved) or not self.moves.king(self.board, self.kings_pos[WHITE_KING], self.pieces_moved):
-                # self.moves.check_mate()
-                pass
+            self.is_check_mate()
 
     def get_move(self, color: int):
         return self.chose_pies(color)
@@ -132,6 +128,7 @@ class Game:
         piece = -1
         move = False
         to_move = -1
+        move_promo = None
         while not move:
             piece = to_move
             while self.board[piece] // color != 1 or piece == -1:
@@ -141,7 +138,7 @@ class Game:
                     piece = (ord(x) - 97) + (8 - int(y)) * 8
             move, to_move = self.chose_position(piece, color)
         if self.board[to_move] % UNCOLOR == PAWN and to_move // 8 in (0, 7):
-            self.board[to_move] = self.choose_piece(color)
+            move_promo = self.choose_piece(color)
         return piece, to_move
 
     def chose_position(self, piece, color):
@@ -189,3 +186,10 @@ class Game:
         else:
             data = input(input_message)
             return data
+
+    def is_check_mate(self):
+        if (not self.moves.king(self.board, self.white_king, self.pieces_moved) or
+                not self.moves.king(self.board, self.black_king, self.pieces_moved)):
+            # self.moves.check_mate()
+            pass
+

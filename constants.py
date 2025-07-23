@@ -246,26 +246,26 @@ class Moves:
         return True
 
     def check_mate(self, board, curr_pos, to):
-        color = board[curr_pos] - board[curr_pos] % 100
+        color = board[curr_pos] - board[curr_pos] % UNCOLOR
         deleted_place = board[to]
         board[to], board[curr_pos] = board[curr_pos], 0
         possible_moves = {}
         for i, x in enumerate(board):
-            if x % 100 == ROCK:
+            if x % UNCOLOR == ROCK:
                 possible_moves[i] = self.rock(board, i, False)
-            elif x % 100 == PAWN:
+            elif x % UNCOLOR == PAWN:
                 possible_moves[i] = self.pawn(board, i, False)
-            elif x % 100 == KNIGHT:
+            elif x % UNCOLOR == KNIGHT:
                 possible_moves[i] = self.knight(board, i, False)
-            elif x % 100 == BISHOP:
+            elif x % UNCOLOR == BISHOP:
                 possible_moves[i] = self.bishop(board, i, False)
-            elif x % 100 == QUEEN:
+            elif x % UNCOLOR == QUEEN:
                 possible_moves[i] = self.queen(board, i, False)
-            elif x % 100 == KING:
+            elif x % UNCOLOR == KING:
                 possible_moves[i] = self.king(board, i, self.pieces_moved, False)
         for piece in list(possible_moves):
             for pos in possible_moves[piece]:
-                if board[pos] % 100 == KING:
+                if board[pos] % UNCOLOR == KING:
                     board[to], board[curr_pos] = deleted_place, board[to]
                     if board[curr_pos] // color == 1:
                         return False
