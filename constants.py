@@ -112,16 +112,19 @@ class Moves:
                 positions.append(position - 9)
         return self.available_moves(board, position, positions, out)
 
-    def king(self, board, position, pieces_moved, out=True):
+    def king(self, board, position, out=True):
         color = board[position] - board[position] % 100
         positions = []
-        try:
-            if pieces_moved[position] == False and pieces_moved[position-4] == False and board[position-1] == 0 and board[position-2] == 0 and board[position-3] == 0:
-                positions.append(position - 2)
-            if pieces_moved[position] == False and pieces_moved[position+3] == False and board[position+1] == 0 and board[position+2] == 0:
-                positions.append(position + 2)
-        except Exception():
-            pass
+
+        if board.white_ooo == True and board[position-1] == 0 and board[position-2] == 0 and board[position-3] == 0:
+            positions.append(position - 2)
+        if board.white_oo == True and board[position+1] == 0 and board[position+2] == 0:
+            positions.append(position + 2)
+        if board.black_ooo == True and board[position-1] == 0 and board[position-2] == 0 and board[position-3] == 0:
+            positions.append(position - 2)
+        if board.black_oo == True and board[position+1] == 0 and board[position+2] == 0:
+            positions.append(position + 2)
+
         for i in range(3):
             if position - 7 - i > -1 and board[position - 7 - i]  // color != 1 and abs(position % 8 - (position - 7 - i) % 8) < 2:
                 positions.append(position - 7 - i)
@@ -147,10 +150,10 @@ class Moves:
                 if abs((position + j) % 8 - position % 8) != 1: continue
                 if board[position + i + j] // color != 1:
                     positions.append(position + i + j)
-        for i in (-2, 2):
-            if abs((position + i) % 8 - position % 8 != 2): continue
-            for j in (-8, 8):
-                if 0 > position + j or position + j > 63: continue
+        for i in (-8, 8):
+            if 0 > position + i or position + i > 63: continue
+            for j in (-2, 2):
+                if abs((position + j) % 8 - position % 8) != 2: continue
                 if board[position + i + j] // color != 1:
                     positions.append(position + i + j)
         return self.available_moves(board, position, positions, out)
@@ -271,6 +274,25 @@ class Moves:
                         return False
         board[to], board[curr_pos] = deleted_place, board[to]
         return True
+
+    def all_moves(self, board, color):
+        moves = Moves(self.pieces_moved)
+        positions = []
+        for i in range(len(board)):
+            if board[i] // color == 1:
+                if board[i] % color == ROCK:
+                    positions.extend(moves.rock(board, i))
+                elif board[i] % color == PAWN:
+                    positions.extend(moves.pawn(board, i))
+                elif board[i] % color == KING:
+                    positions.extend(moves.king(board, i, self.pieces_moved))
+                elif board[i] % color == QUEEN:
+                    positions.extend(moves.queen(board, i))
+                elif board[i] % color == KNIGHT:
+                    positions.extend(moves.knight(board, i))
+                elif board[i] % color == BISHOP:
+                    positions.extend(moves.bishop(board, i))
+        return positions
 
 
 UNICODE_CODING = {

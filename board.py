@@ -40,6 +40,10 @@ class Board:
     def __init__(self, draw_mode):
         self.board = [0 for _ in range(64)]
         self.draw_mode = draw_mode
+        self.white_oo = True
+        self.white_ooo = True
+        self.black_oo = True
+        self.black_ooo = True
 
     def __str__(self):
         string = "|"
@@ -72,12 +76,15 @@ class Board:
             self.board[55 - x] = WHITE_PAWN
 
     def move(self, move_from, move_to, move_promo):
-        if self.board[move_from] % UNCOLOR == KING and move_from - move_to == 2:
+        moving_piece = self.board[move_from] % UNCOLOR
+        moving_color = self.board[move_from] - moving_piece
+        if moving_piece == KING and move_from - move_to == 2:
             self.board[move_to] = self.board[move_from]
             self.board[move_from] = 0
             self.board[move_to + 1] = self.board[move_from - 4]
             self.board[move_from - 4] = 0
-        elif self.board[move_from] % UNCOLOR == KING and move_to - move_from == 2:
+
+        elif moving_piece == KING and move_to - move_from == 2:
             self.board[move_to] = self.board[move_from]
             self.board[move_from] = 0
             self.board[move_to - 1] = self.board[move_from + 3]
@@ -85,6 +92,24 @@ class Board:
         else:
             self.board[move_to] = self.board[move_from]
             self.board[move_from] = 0
+        if moving_piece == PAWN and move_to // 8 in (0, 7):
+            self.board[move_to] = move_promo
+        if moving_piece == KING:
+            if moving_color == WHITE:
+                self.board.white_ooo = False
+                self.board.white_oo = False
+            else:
+                self.board.black_ooo = False
+                self.board.black_oo = False
+        if moving_piece == ROCK:
+            if move_from == 0:
+                self.board.black_ooo = False
+            if move_from == 7:
+                self.board.black_oo = False
+            if move_from == 56:
+                self.board.white_ooo = False
+            if move_from == 63:
+                self.board.white_oo = False
 
 
 class Game:
@@ -149,7 +174,7 @@ class Game:
         elif self.board[piece] % color == PAWN:
             positions = self.moves.pawn(self.board, piece)
         elif self.board[piece] % color == KING:
-            positions = self.moves.king(self.board, piece, self.pieces_moved)
+            positions = self.moves.king(self.board, piece)
         elif self.board[piece] % color == QUEEN:
             positions = self.moves.queen(self.board, piece)
         elif self.board[piece] % color == KNIGHT:
