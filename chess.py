@@ -1,6 +1,6 @@
 from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
                        WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
-                       BLACK, WHITE, UNICODE_CODING, WINDOWS_UNICODE_CODING, Moves, PAWN, QUEEN,
+                       BLACK, WHITE, UNICODE_CODING, Moves, PAWN, QUEEN,
                        BISHOP, KNIGHT, ROCK, KING, SWITCHABLE, POSSIBLE_COLORS)
 import pygame
 
@@ -58,8 +58,16 @@ class Drawer:
 
 class Chess:
     def __init__(self, draw_mode):
-        self.board = [0 for x in range(64)]
+        self.board = [0 for _ in range(64)]
         self.draw_mode = draw_mode
+        self.pieces_moved = {
+            0: False,
+            4: False,
+            7: False,
+            56: False,
+            60: False,
+            63: False,
+        }
 
     def __str__(self):
         string = "|"
@@ -130,17 +138,9 @@ class Chess:
         return piece, to_move
 
     def chose_position(self, piece, color):
-        moves = Moves(color)
+        moves = Moves(self.pieces_moved)
         positions = []
         possible_moves = []
-        self.pieces_moved = {
-            0: False,
-            4: False,
-            7: False,
-            56: False,
-            60: False,
-            63: False,
-        }
         if self.board[piece] % color == ROCK:
             positions = moves.rock(self.board, piece)
         elif self.board[piece] % color == PAWN:
