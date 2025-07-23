@@ -16,6 +16,10 @@ WHITE = 100
 BLACK = 200
 
 POSSIBLE_COLORS = (WHITE, BLACK)
+SWITCH_COLOR = {
+    WHITE: BLACK,
+    BLACK: WHITE,
+}
 
 ROCK = 1
 PAWN = 2
@@ -113,7 +117,7 @@ class Moves:
                 positions.append(position - 2)
             if pieces_moved[position] == False and pieces_moved[position+3] == False and board[position+1] == 0 and board[position+2] == 0:
                 positions.append(position + 2)
-        except Exception:
+        except Exception():
             pass
         for i in range(3):
             if position - 7 - i > -1 and board[position - 7 - i]  // color != 1 and abs(position % 8 - (position - 7 - i) % 8) < 2:
@@ -198,21 +202,42 @@ class Moves:
         if not out:
             return positions
         to_delete = []
-        print(positions, 0)
         for x in range(len(positions)):
             if not self.check_detection(board, position, positions[x]):
-                print("add")
                 to_delete.append(x)
         for x in range(len(to_delete) - 1, -1, -1):
-            print(x)
             del positions[x]
-        print(positions, 1)
         return positions
 
     def check_detection(self, board, curr_pos, to):
-        print("checking")
-        deleted_place = board[to]
         color = board[curr_pos] - board[curr_pos] % 100
+        deleted_place, board[to], board[curr_pos] = board[to], board[curr_pos], 0
+        possible_moves = {
+            "bishop": [],
+            "knight": [],
+            "rock": []
+        }
+        for x in range(len(board)):
+            if board[x] - color == KING:
+                possible_moves["bishop"] = self.bishop(board, x, False)
+                possible_moves["knight"] = self.knight(board, x, False)
+                possible_moves["rock"] = self.rock(board, x, False)
+                break
+        board[to], board[curr_pos] = deleted_place, board[to]
+        for x in possible_moves["bishop"]:
+            if (board[x] - SWITCH_COLOR[color] == BISHOP or board[x] - SWITCH_COLOR[color] == QUEEN) and SWITCH_COLOR[color] == board[x] - board[x] % 100:
+                return False
+        for x in possible_moves["knight"]:
+            if board[x] - SWITCH_COLOR[color] == KNIGHT and SWITCH_COLOR[color] == board[x] - board[x] % 100:
+                return False
+        for x in possible_moves["rock"]:
+            if (board[x] - SWITCH_COLOR[color] == ROCK or board[x] - SWITCH_COLOR[color] == QUEEN) and SWITCH_COLOR[color] == board[x] - board[x] % 100:
+                return False
+        return True
+
+    def _(self, board, curr_pos, to):
+        color = board[curr_pos] - board[curr_pos] % 100
+        deleted_place = board[to]
         board[to], board[curr_pos] = board[curr_pos], 0
         possible_moves = {}
         for i, x in enumerate(board):
@@ -236,13 +261,6 @@ class Moves:
                         return False
         board[to], board[curr_pos] = deleted_place, board[to]
         return True
-
-
-
-
-
-
-
 
 
 UNICODE_CODING = {
