@@ -4,25 +4,6 @@ from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_
                        BISHOP, KNIGHT, ROCK, KING, SWITCHABLE, POSSIBLE_COLORS, UNCOLOR)
 import pygame
 
-class Game:
-    def __init__(self, mode):
-        self.mode = mode
-        self.draw_mode = input("Jak chces vykreslovat sachovnici? Metod: konzole, Lukas: aplikace")
-        self.drawer = Drawer(self.draw_mode)
-
-    def start(self):
-        chess = Board(self.draw_mode)
-        chess.create_board()
-        color = 0
-        while True:
-            self.drawer.draw(chess.board)
-            if POSSIBLE_COLORS[color] == BLACK:
-                print("HRAJE CERNY")
-            else:
-                print("HRAJE BILY")
-            chess.move(POSSIBLE_COLORS[color])
-            color = abs(color - 1)
-
 class Drawer:
     def __init__(self, mode):
         self.mode = mode
@@ -54,27 +35,11 @@ class Drawer:
 
 
 
-def gen_moves(board):
-    # self.chose_pies(color)
-    return []
 
 class Board:
     def __init__(self, draw_mode):
         self.board = [0 for _ in range(64)]
         self.draw_mode = draw_mode
-        self.pieces_moved = {
-            0: False,
-            4: False,
-            7: False,
-            56: False,
-            60: False,
-            63: False,
-        }
-        self.moves = Moves(self.pieces_moved)
-        self.kings_pos = {
-            BLACK_KING: 4,
-            WHITE_KING: 60,
-        }
 
     def __str__(self):
         string = "|"
@@ -120,15 +85,48 @@ class Board:
         else:
             self.board[move_to] = self.board[move_from]
             self.board[move_from] = 0
-        if self.board[move_to] % UNCOLOR == PAWN and move_to // 8 in (0, 7):
-            self.board[move_to] = self.choose_piece(move_promo)
-        try:
-            self.pieces_moved[move_from] = True
-        except Exception:
-            pass
-        if not self.moves.king(self.board, self.kings_pos[BLACK_KING], self.pieces_moved) or not self.moves.king(self.board, self.kings_pos[WHITE_KING], self.pieces_moved):
-            self.moves.check_mate()
 
+
+class Game:
+    def __init__(self, mode: str):
+        self.mode = mode
+        self.draw_mode = input("Jak chces vykreslovat sachovnici? Metod: konzole, Lukas: aplikace")
+        self.drawer = Drawer(self.draw_mode)
+        self.board = []
+        self.moves = None
+        self.pieces_moved = {
+            0: False,
+            4: False,
+            7: False,
+            56: False,
+            60: False,
+            63: False,
+        }
+        self.kings_pos = {
+            BLACK_KING: 4,
+            WHITE_KING: 60,
+        }
+
+    def start(self):
+        chess = Board(self.draw_mode)
+        self.moves = Moves(self.pieces_moved)
+        self.board = chess.board
+        chess.create_board()
+        color = 0
+        while True:
+            self.drawer.draw(self.board)
+            if POSSIBLE_COLORS[color] == BLACK:
+                print("HRAJE CERNY")
+            else:
+                print("HRAJE BILY")
+            self.get_move(POSSIBLE_COLORS[color])
+            color = abs(color - 1)
+            if not self.moves.king(self.board, self.kings_pos[BLACK_KING], self.pieces_moved) or not self.moves.king(self.board, self.kings_pos[WHITE_KING], self.pieces_moved):
+                # self.moves.check_mate()
+                pass
+
+    def get_move(self, color: int):
+        return self.chose_pies(color)
 
     def chose_pies(self, color):
         piece = -1
@@ -140,9 +138,10 @@ class Board:
                 piece = self.event_listener("Jakou chces figurku?")
                 if type(piece) is str:
                     x, y = piece
-                    piece = (ord(x)-97) + (8 - int(y))*8
-                # piece = int(input("Jakou chces figurku?"))
+                    piece = (ord(x) - 97) + (8 - int(y)) * 8
             move, to_move = self.chose_position(piece, color)
+        if self.board[to_move] % UNCOLOR == PAWN and to_move // 8 in (0, 7):
+            self.board[to_move] = self.choose_piece(color)
         return piece, to_move
 
     def chose_position(self, piece, color):
@@ -166,14 +165,12 @@ class Board:
         if type(position) is str:
             x, y = position
             position = (ord(x) - 97) + (8 - int(y)) * 8
-        # position = int(input(f"Kam chces tahnout? Mozne pozice: {positions}"))
         if position in positions:
             return True, position
         return False, position
 
     def choose_piece(self, color):
         while True:
-            # piece = int(input("Za jakou figurku chces vymenit pesaka?"))
             piece = self.event_listener("Za jakou figurku chces vymenit pesaka")
             if piece not in SWITCHABLE: continue
             return color + piece
@@ -192,4 +189,3 @@ class Board:
         else:
             data = input(input_message)
             return data
-
