@@ -2,6 +2,7 @@ from board import Board
 from drawer import Drawer
 from constants import (UNCOLOR, BLACK, PAWN, ROCK, KING, QUEEN, KNIGHT, SWITCHABLE)
 from moves import (rock, pawn, king, queen, knight, bishop, Move, available_moves)
+from chess_engine import computer_move
 import pygame
 
 from tile import rank1
@@ -80,3 +81,9 @@ while True:
     else:
         print("HRAJE BILY")
     board.move(pick_move(board))
+    drawer.draw(board)
+    if board.color == BLACK:
+        print("HRAJE CERNY")
+    else:
+        print("HRAJE BILY")
+    computer_move(board)

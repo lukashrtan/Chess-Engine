@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from board import Board
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Move:
     fr: int
     to: int

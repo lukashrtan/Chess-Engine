@@ -71,7 +71,7 @@ class Board:
 
         return b
 
-    def move(self, move: Move) -> None:
+    def move(self, move: Move) -> "Board":
         # rošáda
         moving_piece = self.board[move.fr] % UNCOLOR
         moving_color = self.color
@@ -117,3 +117,4 @@ class Board:
                 self.white_oo = False
 
         self.color = SWITCH_COLOR[self.color]
+        return self
