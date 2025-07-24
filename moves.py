@@ -30,8 +30,8 @@ class Move:
     promo: int | None = None
 
 
-def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
-    color = board[from_pos] - board[from_pos] % UNCOLOR
+def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
+    color = board.color
     if from_pos == to_pos:
         deleted_place = board[to_pos]
     else:
@@ -60,14 +60,14 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
             board[to] - SWITCH_COLOR[color] == KNIGHT
             and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
         ):
-            return False
+            return True
     for move in rock_moves:
         to = move.to
         if (
             board[to] - SWITCH_COLOR[color] == ROCK
             or board[to] - SWITCH_COLOR[color] == QUEEN
         ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
-            return False
+            return True
     for move in pawn_moves:
         to = move.to
         if (
@@ -75,21 +75,28 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
             and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
             and to % 8 - king_pos % 8 != 0
         ):
-            return False
-    return True
+            return True
+    return False
 
 
 def available_moves(board: "Board") -> Generator[Move, None, None]:
-    for move in all_moves(board):
+    for move in list(all_moves(board)):
         king_under_attack = check_detection(board, move.fr, move.to)
         if king_under_attack:
             continue
         else:
             yield move
 
+def available_moves_specific_pos(board: "Board", poss: list[Move]) -> Generator[Move, None, None]:
+    for move in poss:
+        if check_detection(board, move.fr, move.to):
+            continue
+        else:
+            yield move
+
 
 def rock(board: "Board", pos: int) -> Generator[Move, None, None]:
-    color = board[pos] - (board[pos] % UNCOLOR)
+    color = board.color
 
     for x in range(1, 8):
         p = pos + x * DOWN
@@ -131,14 +138,14 @@ def rock(board: "Board", pos: int) -> Generator[Move, None, None]:
 
 
 def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
-    color = board[pos] - board[pos] % UNCOLOR
+    color = board.color
     jump_to = 2
 
     if color == BLACK:
         if pos in rank7 and color == BLACK:
             jump_to = 3
         for x in range(1, jump_to):
-            if board[pos + x * UP] == 0 and pos + x * UP < 64:
+            if board[pos + x * DOWN] == 0 and pos + x * DOWN < 64:
                 yield Move(pos, pos + 8 * x)
             else:
                 break
@@ -151,8 +158,8 @@ def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
         if pos in rank2 and color == WHITE:
             jump_to = 3
         for x in range(1, jump_to):
-            if board[pos + x * DOWN] == 0:
-                yield Move(pos, pos + x * DOWN)
+            if board[pos + x * UP] == 0:
+                yield Move(pos, pos + x * UP)
             else:
                 break
         if board[pos + UP + LEFT] // BLACK == 1 and pos not in fileA:
@@ -162,7 +169,7 @@ def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
 
 
 def king(board: "Board", position: int) -> Generator[Move, None, None]:
-    color = board[position] - board[position] % UNCOLOR
+    color = board.color
 
     if (
         board.white_ooo == True
@@ -211,8 +218,8 @@ def king(board: "Board", position: int) -> Generator[Move, None, None]:
             yield Move(position, position + 7 + i)
 
 
-def knight(board, position: int) -> Generator[Move, None, None]:
-    color = board[position] - board[position] % UNCOLOR
+def knight(board: "Board", position: int) -> Generator[Move, None, None]:
+    color = board.color
     for i in (UP + UP, DOWN + DOWN):
         if position + i < 0 or position + i > 63:
             continue
@@ -231,50 +238,51 @@ def knight(board, position: int) -> Generator[Move, None, None]:
                 yield Move(position, position + i + j)
 
 
-def bishop(board: "Board", position: int) -> Generator[Move, None, None]:
-    color = board[position] - board[position] % UNCOLOR
+def bishop(board: "Board", pos: int) -> Generator[Move, None, None]:
+    color = board.color
+    print(board[pos])
     for x in range(1, 8):
-        p = position + x * (DOWN + RIGHT)
-        if p % 8 <= position % 8 or p > 63:
+        p = pos + x * (DOWN + RIGHT)
+        if p % 8 <= pos % 8 or p > 63:
             break
         if board[p] == 0:
-            yield Move(position, p)
+            yield Move(pos, p)
             continue
         elif board[p] // color != 1:
-            yield Move(position, p)
+            yield Move(pos, p)
         break
 
     for x in range(1, 8):
-        p = position + x * (UP + LEFT)
-        if p % 8 >= position % 8 or p < 0:
+        p = pos + x * (UP + LEFT)
+        if p % 8 >= pos % 8 or p < 0:
             break
         if board[p] == 0:
-            yield Move(position, p)
+            yield Move(pos, p)
             continue
         elif board[p] // color != 1:
-            yield Move(position, p)
+            yield Move(pos, p)
         break
 
     for x in range(1, 8):
-        p = position + x * (DOWN + LEFT)
-        if p % 8 >= position % 8 or p > 63:
+        p = pos + x * (DOWN + LEFT)
+        if p % 8 >= pos % 8 or p > 63:
             break
         if board[p] == 0:
-            yield Move(position, p)
+            yield Move(pos, p)
             continue
         elif board[p] // color != 1:
-            yield Move(position, p)
+            yield Move(pos, p)
         break
 
     for x in range(1, 8):
-        p = position + x * (UP + RIGHT)
-        if p % 8 <= position % 8 or p < 0:
+        p = pos + x * (UP + RIGHT)
+        if p % 8 <= pos % 8 or p < 0:
             break
         if board[p] == 0:
-            yield Move(position, p)
+            yield Move(pos, p)
             continue
         elif board[p] // color != 1:
-            yield Move(position, p)
+            yield Move(pos, p)
         break
 
 
@@ -283,7 +291,7 @@ def queen(board: "Board", position: int) -> Generator[Move, None, None]:
     yield from bishop(board, position)
 
 
-def check_mate(board: Board, king_pos: int) -> bool|None:
+def check_mate(board: "Board", king_pos: int) -> bool|None:
     if not available_moves(board):
         if check_detection(board, king_pos, king_pos):
             return None

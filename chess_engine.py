@@ -1,10 +1,9 @@
-from moves import Move
+from moves import available_moves
 
-def computer_move(self, board, color):
-    moves = Move(self.pieces_moved)
-    positions = moves.all_moves(board, color)
-
+def computer_move(board, color):
+    moves = available_moves(board)
 
 
-def position_evaluation(self, board):
-    for i in range(len(board)):
+
+# def position_evaluation(board):
+#     for i in range(len(board)):
