@@ -1,9 +1,10 @@
-from constants import UNICODE_CODING
 import pygame
+
+from constants import UNICODE_CODING
 
 
 class Drawer:
-    def __init__(self, mode):
+    def __init__(self, mode) -> None:
         self.mode = mode
         if self.mode != "Lukas":
             pass
@@ -12,7 +13,7 @@ class Drawer:
         self.font = pygame.font.Font("./font/DejaVuSans.ttf", 80)  # segoeuisymbol
         pygame.init()
 
-    def draw(self, board):
+    def draw(self, board) -> None:
         if self.mode == "Lukas":
             self.screen.fill("black")
             for y in range(8):

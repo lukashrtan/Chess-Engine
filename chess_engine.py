@@ -1,6 +1,7 @@
 from board import Board
-from moves import (Move, all_moves)
-from constants import (UNCOLOR, WHITE, ROCK, PAWN, KING, QUEEN, KNIGHT, BISHOP)
+from constants import BISHOP, KING, KNIGHT, PAWN, QUEEN, ROCK, UNCOLOR, WHITE
+from moves import Move, all_moves
+
 
 def computer_move(board: Board) -> Move:
     moves_evaluaited: list[tuple[int, Move]] = []
@@ -8,22 +9,19 @@ def computer_move(board: Board) -> Move:
         moves_evaluaited.append((recursive_evaluation(board.clone().move(move), 1), move))
     if board.color == WHITE:
         return max(moves_evaluaited)[1]
-    else:
-        return min(moves_evaluaited)[1]
+    return min(moves_evaluaited)[1]
 
 
 
 def recursive_evaluation(board: Board, depth: int) -> int:
     if depth == 0:
         return position_evaluation(board)
-    else:
-        scores = []
-        for move in all_moves(board):
-            scores.append(recursive_evaluation(board.clone().move(move), depth - 1))
-        if board.color == WHITE:
-            return max(scores)
-        else:
-            return min(scores)
+    scores = []
+    for move in all_moves(board):
+        scores.append(recursive_evaluation(board.clone().move(move), depth - 1))
+    if board.color == WHITE:
+        return max(scores)
+    return min(scores)
 
 
 def position_evaluation(board: Board) -> int:
@@ -43,18 +41,13 @@ def position_evaluation(board: Board) -> int:
             square = 0
         elif piece == QUEEN:
             square = 9
-        elif piece == KNIGHT:
-            square = 3
-        elif piece == BISHOP:
+        elif piece in (KNIGHT, BISHOP):
             square = 3
         else:
-            raise AssertionError()
+            raise AssertionError
 
 
-        if color == WHITE:
-            square = square * 1
-        else:
-            square = square  * -1
+        square = square * 1 if color == WHITE else square * -1
 
         evaluation += square
 

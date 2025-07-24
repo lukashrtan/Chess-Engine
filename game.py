@@ -1,11 +1,10 @@
-from board import Board
-from drawer import Drawer
-from constants import (UNCOLOR, BLACK, PAWN, ROCK, KING, QUEEN, KNIGHT, SWITCHABLE)
-from moves import (rock, pawn, king, queen, knight, bishop, Move, available_moves)
-from chess_engine import computer_move
 import pygame
 
-from tile import rank1
+from board import Board
+from chess_engine import computer_move
+from constants import BLACK
+from drawer import Drawer
+from moves import Move, available_moves
 
 
 def pick_move(board: Board) -> Move:
@@ -24,14 +23,13 @@ def pick_move(board: Board) -> Move:
 
         if len(matching_moves) == 0:
             continue
-        elif len(matching_moves) == 1:
+        if len(matching_moves) == 1:
             return matching_moves[0]
-        else:
-            while True:
-                promo_piece = pick_promo("Za co chces menit?")
-                for move in matching_moves:
-                    if move.promo == promo_piece:
-                        return move
+        while True:
+            promo_piece = pick_promo("Za co chces menit?")
+            for move in matching_moves:
+                if move.promo == promo_piece:
+                    return move
 
 
 def pick_promo(input_message: str) -> int:
@@ -46,9 +44,8 @@ def pick_promo(input_message: str) -> int:
                     return position[0] // 100 + position[1] // 100 * 8
                     # TODO: some gui for promo picking
     else:
-        data = int(input(input_message))
+        return int(input(input_message))
         # TODO: check if valid if not return -1
-        return data
 
 
 def pick_square(input_message: str) -> int:
@@ -64,9 +61,8 @@ def pick_square(input_message: str) -> int:
     else:
         data = input(input_message)
         x, y = data
-        tile = (ord(x) - 97) + (8 - int(y)) * 8
+        return (ord(x) - 97) + (8 - int(y)) * 8
         # TODO: check if valid if not return -1
-        return tile
 
 
 draw_mode = "Lukas"#input("Jak chces vykreslovat sachovnici? Metod: konzole, Lukas: aplikace")

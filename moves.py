@@ -1,25 +1,30 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Generator, TYPE_CHECKING
+from typing import TYPE_CHECKING
+
 from constants import (
-    UNCOLOR,
-    BLACK,
-    WHITE,
-    KING,
-    SWITCH_COLOR,
-    ROCK,
-    PAWN,
-    KING,
-    QUEEN,
-    KNIGHT,
     BISHOP,
-    UP,
-    RIGHT,
+    BLACK,
     DOWN,
-    LEFT, SWITCHABLE,
+    KING,
+    KNIGHT,
+    LEFT,
+    PAWN,
+    QUEEN,
+    RIGHT,
+    ROCK,
+    SWITCH_COLOR,
+    SWITCHABLE,
+    UNCOLOR,
+    UP,
+    WHITE,
 )
-from tile import fileA, fileH, rank2, rank7, rank1
+from tile import fileA, fileH, rank1, rank2, rank7
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from board import Board
 
 
@@ -30,7 +35,7 @@ class Move:
     promo: int | None = None
 
 
-def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
+def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
     color = board.color
     if from_pos == to_pos:
         deleted_place = board[to_pos]
@@ -46,7 +51,7 @@ def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
             king_pos = pos
             break
     else:
-        raise AssertionError()
+        raise AssertionError
     board[to_pos], board[from_pos] = deleted_place, board[to_pos]
     for move in bishop_moves:
         to = move.to
@@ -87,7 +92,7 @@ def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
     return False
 
 
-def is_square_under_attack(board: "Board", pos: int) -> bool:
+def is_square_under_attack(board: Board, pos: int) -> bool:
     color = board.color
     king_pos = pos
     for move in bishop(board, pos):
@@ -129,7 +134,7 @@ def is_square_under_attack(board: "Board", pos: int) -> bool:
     return False
 
 
-def available_moves(board: "Board") -> Generator[Move, None, None]:
+def available_moves(board: Board) -> Generator[Move, None, None]:
     for move in list(all_moves(board)):
         if (abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
                 and not is_square_under_attack(board, move.fr)):
@@ -139,7 +144,7 @@ def available_moves(board: "Board") -> Generator[Move, None, None]:
         else:
             yield move
 
-def available_moves_specific_pos(board: "Board", positions: list[Move]) -> Generator[Move, None, None]:
+def available_moves_specific_pos(board: Board, positions: list[Move]) -> Generator[Move, None, None]:
     for move in positions:
         if (board[move.fr] == abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
                 and not is_square_under_attack(board, move.fr)):
@@ -150,7 +155,7 @@ def available_moves_specific_pos(board: "Board", positions: list[Move]) -> Gener
             yield move
 
 
-def rock(board: "Board", pos: int) -> Generator[Move, None, None]:
+def rock(board: Board, pos: int) -> Generator[Move, None, None]:
     color = board.color
 
     for x in range(1, 8):
@@ -192,7 +197,7 @@ def rock(board: "Board", pos: int) -> Generator[Move, None, None]:
         break
 
 
-def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
+def pawn(board: Board, pos: int) -> Generator[Move, None, None]:
     color = board.color
     jump_to = 2
 
@@ -247,29 +252,29 @@ def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
                 yield Move(pos, pos + UP + RIGHT)
 
 
-def king(board: "Board", position: int) -> Generator[Move, None, None]:
+def king(board: Board, position: int) -> Generator[Move, None, None]:
     color = board.color
 
     if (
-        board.white_ooo == True
+        board.white_ooo
         and board[position - 1] == 0
         and board[position - 2] == 0
         and board[position - 3] == 0
     ):
         yield Move(position, position - 2)
 
-    if board.white_oo == True and board[position + 1] == 0 and board[position + 2] == 0:
+    if board.white_oo and board[position + 1] == 0 and board[position + 2] == 0:
         yield Move(position, position + 2)
 
     if (
-        board.black_ooo == True
+        board.black_ooo
         and board[position - 1] == 0
         and board[position - 2] == 0
         and board[position - 3] == 0
     ):
         yield Move(position, position - 2)
 
-    if board.black_oo == True and board[position + 1] == 0 and board[position + 2] == 0:
+    if board.black_oo and board[position + 1] == 0 and board[position + 2] == 0:
         yield Move(position, position + 2)
 
     for i in range(3):
@@ -297,7 +302,7 @@ def king(board: "Board", position: int) -> Generator[Move, None, None]:
             yield Move(position, position + 7 + i)
 
 
-def knight(board: "Board", position: int) -> Generator[Move, None, None]:
+def knight(board: Board, position: int) -> Generator[Move, None, None]:
     color = board.color
     for i in (UP + UP, DOWN + DOWN):
         if position + i < 0 or position + i > 63:
@@ -308,7 +313,7 @@ def knight(board: "Board", position: int) -> Generator[Move, None, None]:
             if board[position + i + j] // color != 1:
                 yield Move(position, position + i + j)
     for i in (UP, DOWN):
-        if 0 > position + i or position + i > 63:
+        if position + i < 0 or position + i > 63:
             continue
         for j in (LEFT + LEFT, RIGHT + RIGHT):
             if abs((position + j) % 8 - position % 8) != 2:
@@ -317,7 +322,7 @@ def knight(board: "Board", position: int) -> Generator[Move, None, None]:
                 yield Move(position, position + i + j)
 
 
-def bishop(board: "Board", pos: int) -> Generator[Move, None, None]:
+def bishop(board: Board, pos: int) -> Generator[Move, None, None]:
     color = board.color
     print(board[pos])
     for x in range(1, 8):
@@ -365,12 +370,12 @@ def bishop(board: "Board", pos: int) -> Generator[Move, None, None]:
         break
 
 
-def queen(board: "Board", position: int) -> Generator[Move, None, None]:
+def queen(board: Board, position: int) -> Generator[Move, None, None]:
     yield from rock(board, position)
     yield from bishop(board, position)
 
 
-def check_mate(board: "Board", king_pos: int) -> bool|None:
+def check_mate(board: Board, king_pos: int) -> bool|None:
     if not available_moves(board):
         if check_detection(board, king_pos, king_pos):
             return None
@@ -378,7 +383,7 @@ def check_mate(board: "Board", king_pos: int) -> bool|None:
     return False
 
 
-def all_moves(board: "Board") -> Generator[Move, None, None]:
+def all_moves(board: Board) -> Generator[Move, None, None]:
     for i, tile in enumerate(board.board):
         if tile // board.color == 1:
             piece = tile % board.color

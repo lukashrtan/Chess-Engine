@@ -1,18 +1,52 @@
-from constants import (BLACK_ROCK, BLACK_KING, BLACK_QUEEN, BLACK_BISHOP, BLACK_PAWN, BLACK_KNIGHT,
-                       WHITE_ROCK, WHITE_KING, WHITE_KNIGHT, WHITE_PAWN, WHITE_QUEEN, WHITE_BISHOP,
-                       WHITE,  UNICODE_CODING, PAWN,  EMPTY, SWITCH_COLOR,
-                       ROCK, KING,  UNCOLOR)
+from constants import (
+    BLACK_BISHOP,
+    BLACK_KING,
+    BLACK_KNIGHT,
+    BLACK_PAWN,
+    BLACK_QUEEN,
+    BLACK_ROCK,
+    EMPTY,
+    KING,
+    PAWN,
+    ROCK,
+    SWITCH_COLOR,
+    UNCOLOR,
+    UNICODE_CODING,
+    WHITE,
+    WHITE_BISHOP,
+    WHITE_KING,
+    WHITE_KNIGHT,
+    WHITE_PAWN,
+    WHITE_QUEEN,
+    WHITE_ROCK,
+)
 from moves import Move
-
 from tile import (
-    A1, B1, C1, D1, E1, F1, G1, H1,
-    A8, B8, C8, D8, E8, F8, G8, H8,
-    rank8, rank7, rank2, rank1
+    A1,
+    A8,
+    B1,
+    B8,
+    C1,
+    C8,
+    D1,
+    D8,
+    E1,
+    E8,
+    F1,
+    F8,
+    G1,
+    G8,
+    H1,
+    H8,
+    rank1,
+    rank2,
+    rank7,
+    rank8,
 )
 
 
 class Board:
-    def __init__(self):
+    def __init__(self) -> None:
         self.board = [0 for _ in range(64)]
         self.color = WHITE
         self.white_oo = True
@@ -30,7 +64,7 @@ class Board:
         new.black_ooo = self.black_ooo
         return new
 
-    def __str__(self):
+    def __str__(self) -> str:
         string = "|"
         for i, pies in enumerate(self.board):
             if i % 8 == 0 and i != 0:
@@ -81,7 +115,7 @@ class Board:
             self.board[move.to + 1] = self.board[move.fr - 4]
             self.board[move.fr - 4] = EMPTY
 
-        # rošáda 
+        # rošáda
         elif moving_piece == KING and move.to - move.fr == 2:
             self.board[move.to] = self.board[move.fr]
             self.board[move.fr] = EMPTY
@@ -94,7 +128,7 @@ class Board:
             self.board[move.fr] = EMPTY
 
         # promo
-        if moving_piece == PAWN and move.to in rank1 or move.to in rank8:
+        if (moving_piece == PAWN and move.to in rank1) or move.to in rank8:
             if move.promo is not None:
                 self.board[move.to] = move.promo
 
