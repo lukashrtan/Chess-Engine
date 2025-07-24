@@ -15,9 +15,9 @@ from constants import (
     UP,
     RIGHT,
     DOWN,
-    LEFT,
+    LEFT, SWITCHABLE,
 )
-from tile import fileA, fileH, rank2, rank7
+from tile import fileA, fileH, rank2, rank7, rank1
 
 if TYPE_CHECKING:
     from board import Board
@@ -42,6 +42,7 @@ def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
             knight_moves = knight(board, pos)
             rock_moves = rock(board, pos)
             pawn_moves = pawn(board, pos)
+            king_moves = king(board, pos)
             king_pos = pos
             break
     else:
@@ -53,7 +54,7 @@ def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
             board[to] - SWITCH_COLOR[color] == BISHOP
             or board[to] - SWITCH_COLOR[color] == QUEEN
         ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
-            return False
+            return True
     for move in knight_moves:
         to = move.to
         if (
@@ -76,19 +77,73 @@ def check_detection(board: "Board", from_pos: int, to_pos: int) -> bool:
             and to % 8 - king_pos % 8 != 0
         ):
             return True
+    for move in king_moves:
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == KING
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
+        ):
+            return True
+    return False
+
+
+def is_square_under_attack(board: "Board", pos: int) -> bool:
+    color = board.color
+    king_pos = pos
+    for move in bishop(board, pos):
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == BISHOP
+            or board[to] - SWITCH_COLOR[color] == QUEEN
+        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
+            return True
+    for move in knight(board, pos):
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == KNIGHT
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
+        ):
+            return True
+    for move in rock(board, pos):
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == ROCK
+            or board[to] - SWITCH_COLOR[color] == QUEEN
+        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
+            return True
+    for move in pawn(board, pos):
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == PAWN
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
+            and to % 8 - king_pos % 8 != 0
+        ):
+            return True
+    for move in king(board, pos):
+        to = move.to
+        if (
+            board[to] - SWITCH_COLOR[color] == KING
+            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
+        ):
+            return True
     return False
 
 
 def available_moves(board: "Board") -> Generator[Move, None, None]:
     for move in list(all_moves(board)):
-        king_under_attack = check_detection(board, move.fr, move.to)
-        if king_under_attack:
+        if (abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
+                and not is_square_under_attack(board, move.fr)):
+            continue
+        if check_detection(board, move.fr, move.to):
             continue
         else:
             yield move
 
-def available_moves_specific_pos(board: "Board", poss: list[Move]) -> Generator[Move, None, None]:
-    for move in poss:
+def available_moves_specific_pos(board: "Board", positions: list[Move]) -> Generator[Move, None, None]:
+    for move in positions:
+        if (board[move.fr] == abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
+                and not is_square_under_attack(board, move.fr)):
+            continue
         if check_detection(board, move.fr, move.to):
             continue
         else:
@@ -146,26 +201,50 @@ def pawn(board: "Board", pos: int) -> Generator[Move, None, None]:
             jump_to = 3
         for x in range(1, jump_to):
             if board[pos + x * DOWN] == 0 and pos + x * DOWN < 64:
-                yield Move(pos, pos + 8 * x)
+                if pos + x * DOWN in rank1:
+                    for piece in SWITCHABLE:
+                        yield Move(pos + x * DOWN, piece)
+                    continue
+                yield Move(pos, pos + DOWN * x)
             else:
                 break
         if board[pos + DOWN + LEFT] // WHITE == 1 and pos not in fileA:
-            yield Move(pos, pos + DOWN + LEFT)
+            if pos + DOWN + LEFT in rank1:
+                for piece in SWITCHABLE:
+                    yield Move(pos + DOWN + LEFT, piece)
+            else:
+                yield Move(pos, pos + DOWN + LEFT)
         if board[pos + DOWN + RIGHT] // WHITE == 1 and pos not in fileH:
-            yield Move(pos, pos + DOWN + RIGHT)
+            if pos + DOWN + RIGHT in rank1:
+                for piece in SWITCHABLE:
+                    yield Move(pos + DOWN + RIGHT, piece)
+            else:
+                yield Move(pos, pos + DOWN + RIGHT)
 
     elif color == WHITE:
         if pos in rank2 and color == WHITE:
             jump_to = 3
         for x in range(1, jump_to):
             if board[pos + x * UP] == 0:
+                if pos + x * UP in rank1:
+                    for piece in SWITCHABLE:
+                        yield Move(pos + x * UP, piece)
+                    continue
                 yield Move(pos, pos + x * UP)
             else:
                 break
         if board[pos + UP + LEFT] // BLACK == 1 and pos not in fileA:
-            yield Move(pos, pos + UP + LEFT)
+            if pos + UP + LEFT in rank1:
+                for piece in SWITCHABLE:
+                    yield Move(pos + UP + LEFT, piece)
+            else:
+                yield Move(pos, pos + UP + LEFT)
         if board[pos + UP + RIGHT] // BLACK == 1 and pos not in fileH:
-            yield Move(pos, pos + UP + RIGHT)
+            if pos + UP + RIGHT in rank1:
+                for piece in SWITCHABLE:
+                    yield Move(pos + UP + RIGHT, piece)
+            else:
+                yield Move(pos, pos + UP + RIGHT)
 
 
 def king(board: "Board", position: int) -> Generator[Move, None, None]:

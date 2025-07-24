@@ -61,8 +61,8 @@ class Board:
         b.board[A1] = WHITE_ROCK
         b.board[B1] = WHITE_KNIGHT
         b.board[C1] = WHITE_BISHOP
-        b.board[D1] = WHITE_KING
-        b.board[E1] = WHITE_QUEEN
+        b.board[D1] = WHITE_QUEEN
+        b.board[E1] = WHITE_KING
         b.board[F1] = WHITE_BISHOP
         b.board[G1] = WHITE_KNIGHT
         b.board[H1] = WHITE_ROCK
@@ -95,9 +95,7 @@ class Board:
 
         # promo
         if moving_piece == PAWN and move.to in rank1 or move.to in rank8:
-            if move.promo is None:
-                raise AssertionError()
-            else:
+            if move.promo is not None:
                 self.board[move.to] = move.promo
 
         # castling rights
