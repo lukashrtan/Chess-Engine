@@ -50,6 +50,8 @@ class Board:
         self.white_ooo = True
         self.black_oo = True
         self.black_ooo = True
+        self.white_king_pos = 60
+        self.black_king_pos = 4
 
     def clone(self) -> "Board":
         new = Board()
@@ -111,6 +113,10 @@ class Board:
             self.board[move.fr] = EMPTY
             self.board[move.to + 1] = self.board[move.fr - 4]
             self.board[move.fr - 4] = EMPTY
+            if moving_color == WHITE:
+                self.white_king_pos = move.to
+            else:
+                self.black_king_pos = move.to
 
         # rošáda
         elif moving_piece == KING and move.to - move.fr == 2:
@@ -118,11 +124,20 @@ class Board:
             self.board[move.fr] = EMPTY
             self.board[move.to - 1] = self.board[move.fr + 3]
             self.board[move.fr + 3] = EMPTY
+            if moving_color == WHITE:
+                self.white_king_pos = move.to
+            else:
+                self.black_king_pos = move.to
 
         # prostě tah
         else:
             self.board[move.to] = self.board[move.fr]
             self.board[move.fr] = EMPTY
+            if moving_piece == KING:
+                if moving_color == WHITE:
+                    self.white_king_pos = move.to
+                else:
+                    self.black_king_pos = move.to
 
         # promo
         if move.promo is not None:

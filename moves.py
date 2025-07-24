@@ -380,10 +380,10 @@ def queen(board: Board, position: int) -> Generator[Move, None, None]:
 
 
 def check_mate(board: Board, king_pos: int) -> bool|None:
-    if not available_moves(board):
+    if not list(available_moves(board)):
         if check_detection(board, king_pos, king_pos):
-            return None
-        return True
+            return True
+        return None
     return False
 
 

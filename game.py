@@ -1,7 +1,10 @@
+from moves import check_mate
+from board import Board
 import pygame
+import time
 
 from board import Board
-# from chess_engine import computer_move
+from chess_engine import computer_move
 from constants import BLACK
 from drawer import Drawer
 from moves import Move, available_moves
@@ -65,15 +68,20 @@ board = Board.create_board()
 
 while True:
     drawer.draw(board)
+    #check_mate(board, board.white_king_pos)
     if board.color == BLACK:
         print("HRAJE CERNY")
     else:
         print("HRAJE BILY")
     board.move(pick_move(board))
 
-    # drawer.draw(board)
-    # if board.color == BLACK:
-    #     print("HRAJE CERNY")
-    # else:
-    #     print("HRAJE BILY")
-    # computer_move(board)
+    drawer.draw(board)
+    #check_mate(board, board.black_king_pos)
+    if board.color == BLACK:
+        print("HRAJE CERNY")
+    else:
+        print("HRAJE BILY")
+    start = time.time()
+    board.move(computer_move(board))
+    print(time.time()-start)
+
