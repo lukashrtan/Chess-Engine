@@ -20,7 +20,7 @@ from constants import (
     UP,
     WHITE,
 )
-from tile import fileA, fileH, rank1, rank2, rank7
+from tile import fileA, fileH, rank1, rank2, rank7, E1, E8
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -37,17 +37,14 @@ class Move:
 
 def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
     color = board.color
-    if from_pos == to_pos:
-        deleted_place = board[to_pos]
-    else:
-        deleted_place, board[to_pos], board[from_pos] = board[to_pos], board[from_pos], 0
+    deleted_place, board[to_pos], board[from_pos] = board[to_pos], board[from_pos], 0
     for pos in range(len(board.board)):
         if board[pos] - color == KING:
-            bishop_moves = bishop(board, pos)
-            knight_moves = knight(board, pos)
-            rock_moves = rock(board, pos)
-            pawn_moves = pawn(board, pos)
-            king_moves = king(board, pos)
+            bishop_moves = list(bishop(board, pos))
+            knight_moves = list(knight(board, pos))
+            rock_moves = list(rock(board, pos))
+            pawn_moves = list(pawn(board, pos))
+            king_moves = list(king(board, pos))
             king_pos = pos
             break
     else:
@@ -58,13 +55,12 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
         if (
             board[to] - SWITCH_COLOR[color] == BISHOP
             or board[to] - SWITCH_COLOR[color] == QUEEN
-        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
+        ):
             return True
     for move in knight_moves:
         to = move.to
         if (
             board[to] - SWITCH_COLOR[color] == KNIGHT
-            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
         ):
             return True
     for move in rock_moves:
@@ -72,13 +68,12 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
         if (
             board[to] - SWITCH_COLOR[color] == ROCK
             or board[to] - SWITCH_COLOR[color] == QUEEN
-        ) and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR:
+        ):
             return True
     for move in pawn_moves:
         to = move.to
         if (
             board[to] - SWITCH_COLOR[color] == PAWN
-            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
             and to % 8 - king_pos % 8 != 0
         ):
             return True
@@ -86,7 +81,6 @@ def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
         to = move.to
         if (
             board[to] - SWITCH_COLOR[color] == KING
-            and SWITCH_COLOR[color] == board[to] - board[to] % UNCOLOR
         ):
             return True
     return False
@@ -136,8 +130,12 @@ def is_square_under_attack(board: Board, pos: int) -> bool:
 
 def available_moves(board: Board) -> Generator[Move, None, None]:
     for move in list(all_moves(board)):
-        if (abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
-                and not is_square_under_attack(board, move.fr)):
+        if (
+                board[move.fr] % UNCOLOR == KING
+                and abs(move.fr - move.to) == 2
+                and (is_square_under_attack(board, move.to - int((move.to - move.fr) / 2))
+                or is_square_under_attack(board, move.fr))
+        ):
             continue
         if check_detection(board, move.fr, move.to):
             continue
@@ -146,8 +144,12 @@ def available_moves(board: Board) -> Generator[Move, None, None]:
 
 def available_moves_specific_pos(board: Board, positions: list[Move]) -> Generator[Move, None, None]:
     for move in positions:
-        if (board[move.fr] == abs(move.fr - move.to) == 2 and not is_square_under_attack(board, move.to - int(move.to / 2))
-                and not is_square_under_attack(board, move.fr)):
+        if (
+                board[move.fr] % UNCOLOR == KING
+                and board[move.fr] == abs(move.fr - move.to) == 2
+                and not is_square_under_attack(board, move.to - int(move.to / 2))
+                and not is_square_under_attack(board, move.fr)
+        ):
             continue
         if check_detection(board, move.fr, move.to):
             continue
@@ -255,27 +257,30 @@ def pawn(board: Board, pos: int) -> Generator[Move, None, None]:
 def king(board: Board, position: int) -> Generator[Move, None, None]:
     color = board.color
 
-    if (
-        board.white_ooo
-        and board[position - 1] == 0
-        and board[position - 2] == 0
-        and board[position - 3] == 0
-    ):
-        yield Move(position, position - 2)
+    if position == E1:
+        if (
+            position == E1
+            and board.white_ooo
+            and board[position - 1] == 0
+            and board[position - 2] == 0
+            and board[position - 3] == 0
+        ):
+            yield Move(position, position - 2)
 
-    if board.white_oo and board[position + 1] == 0 and board[position + 2] == 0:
-        yield Move(position, position + 2)
+        if board.white_oo and board[position + 1] == 0 and board[position + 2] == 0:
+            yield Move(position, position + 2)
 
-    if (
-        board.black_ooo
-        and board[position - 1] == 0
-        and board[position - 2] == 0
-        and board[position - 3] == 0
-    ):
-        yield Move(position, position - 2)
+    if position == E8:
+        if (
+            board.black_ooo
+            and board[position - 1] == 0
+            and board[position - 2] == 0
+            and board[position - 3] == 0
+        ):
+            yield Move(position, position - 2)
 
-    if board.black_oo and board[position + 1] == 0 and board[position + 2] == 0:
-        yield Move(position, position + 2)
+        if board.black_oo and board[position + 1] == 0 and board[position + 2] == 0:
+            yield Move(position, position + 2)
 
     for i in range(3):
         if (
@@ -324,7 +329,6 @@ def knight(board: Board, position: int) -> Generator[Move, None, None]:
 
 def bishop(board: Board, pos: int) -> Generator[Move, None, None]:
     color = board.color
-    print(board[pos])
     for x in range(1, 8):
         p = pos + x * (DOWN + RIGHT)
         if p % 8 <= pos % 8 or p > 63:

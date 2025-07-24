@@ -1,23 +1,24 @@
 import pygame
 
 from board import Board
-from chess_engine import computer_move
+# from chess_engine import computer_move
 from constants import BLACK
 from drawer import Drawer
 from moves import Move, available_moves
 
 
 def pick_move(board: Board) -> Move:
+    from_tile = -1
     while True:
         while True:
+            if 64 > from_tile > -1 and board[from_tile] // board.color == 1:
+                break
             from_tile = pick_square()
-            if from_tile != -1:
-                break
 
-        while True:
-            to_tile = pick_square()
-            if to_tile != -1:
-                break
+        to_tile = pick_square()
+        if 64 < to_tile or to_tile < -1 or board[to_tile] // board.color == 1:
+            from_tile = to_tile
+            continue
 
         matching_moves = [
             move for move in available_moves(board)
@@ -69,9 +70,10 @@ while True:
     else:
         print("HRAJE BILY")
     board.move(pick_move(board))
-    drawer.draw(board)
-    if board.color == BLACK:
-        print("HRAJE CERNY")
-    else:
-        print("HRAJE BILY")
-    computer_move(board)
+
+    # drawer.draw(board)
+    # if board.color == BLACK:
+    #     print("HRAJE CERNY")
+    # else:
+    #     print("HRAJE BILY")
+    # computer_move(board)

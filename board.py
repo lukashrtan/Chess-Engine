@@ -7,7 +7,6 @@ from constants import (
     BLACK_ROCK,
     EMPTY,
     KING,
-    PAWN,
     ROCK,
     SWITCH_COLOR,
     UNCOLOR,
@@ -38,10 +37,8 @@ from tile import (
     G8,
     H1,
     H8,
-    rank1,
     rank2,
     rank7,
-    rank8,
 )
 
 
