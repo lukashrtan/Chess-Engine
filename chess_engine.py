@@ -4,9 +4,10 @@ from moves import Move, all_moves
 
 
 def computer_move(board: Board) -> Move:
-    moves_evaluaited: list[tuple[int, Move]] = []
-    for move in all_moves(board):
-        moves_evaluaited.append((recursive_evaluation(board.clone().move(move), 1), move))
+    moves_evaluaited: list[tuple[int, Move]] = [
+        (recursive_evaluation(board.clone().move(move), 1), move)
+        for move in all_moves(board)
+    ]
     if board.color == WHITE:
         return max(moves_evaluaited)[1]
     return min(moves_evaluaited)[1]
@@ -16,9 +17,10 @@ def computer_move(board: Board) -> Move:
 def recursive_evaluation(board: Board, depth: int) -> int:
     if depth == 0:
         return position_evaluation(board)
-    scores = []
-    for move in all_moves(board):
-        scores.append(recursive_evaluation(board.clone().move(move), depth - 1))
+    scores = [
+        recursive_evaluation(board.clone().move(move), depth - 1)
+        for move in all_moves(board)
+    ]
     if board.color == WHITE:
         return max(scores)
     return min(scores)

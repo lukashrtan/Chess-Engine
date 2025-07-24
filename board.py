@@ -128,9 +128,8 @@ class Board:
             self.board[move.fr] = EMPTY
 
         # promo
-        if (moving_piece == PAWN and move.to in rank1) or move.to in rank8:
-            if move.promo is not None:
-                self.board[move.to] = move.promo
+        if move.promo is not None:
+            self.board[move.to] = move.promo
 
         # castling rights
         if moving_piece == KING:
