@@ -4,7 +4,7 @@ from constants import UNICODE_CODING, SWITCHABLE, WHITE
 from typing import TYPE_CHECKING
 
 from moves import Move
-from tile import rank7
+from tile import rank8
 
 if TYPE_CHECKING:
     from board import Board
@@ -17,13 +17,14 @@ class Drawer:
         self.font = pygame.font.Font("./font/DejaVuSans.ttf", 80)
         pygame.init()
 
-    def draw(self, board: "Board", promo_pos: int|None = None, pos_to_move: list[Move] = []) -> None:
+    def draw(self, board: "Board", promo_pos: int|None = None, pos_to_move: list[Move] = [], look_from_color: int = 0) -> None:
+        if look_from_color == 0:
+            look_from_color = board.color
         if promo_pos is not None:
             darker = 86
         else:
             darker = 0
-        if board.color == WHITE:
-            print("idk")
+        if look_from_color == WHITE:
             flip = list(enumerate(range(8)))
         else:
             flip = list(enumerate(range(7, -1, -1)))
@@ -41,39 +42,45 @@ class Drawer:
                     )
                 self.screen.blit(
                     self.font.render(UNICODE_CODING[board[pos]], True, (0, 0, 0)),
-                    (ix * 100 + 10, iy * 100 + 5),
+                    (ix * 100 + 14, iy * 100 + 5),
                 )
                 for move in pos_to_move:
                     if move.to % 8 == x and move.to // 8 == y:
-                        pygame.draw.circle(self.screen, (180, 180, 180), (ix * 100 + 50, iy * 100 + 50), 10)
+                        if board[move.to] != 0:
+                            width = 10
+                            radius = 40
+                        else:
+                            width = 0
+                            radius = 10
+                        pygame.draw.circle(self.screen, (180, 180, 180), (ix * 100 + 50, iy * 100 + 50), radius, width)
 
         if promo_pos is not None:
-            ix = promo_pos % 8
-            for iy in range(len(SWITCHABLE)):
-                if promo_pos in rank7:
-                    if (ix + iy) % 2 == 0:
+            x = promo_pos % 8
+            for y in range(len(SWITCHABLE)):
+                if promo_pos in rank8:
+                    if (x + y) % 2 == 0:
                         pygame.draw.rect(
-                            self.screen, (238, 238, 210), (ix * 100, iy * 100, 100, 100)
+                            self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100)
                         )
                     else:
                         pygame.draw.rect(
-                            self.screen, (118, 150, 86), (ix * 100, iy * 100, 100, 100)
+                            self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100)
                         )
                     self.screen.blit(
-                        self.font.render(UNICODE_CODING[SWITCHABLE[iy] + board.color], True,(0, 0, 0)),
-                        (ix * 100 + 10, iy * 100 + 5),
+                        self.font.render(UNICODE_CODING[SWITCHABLE[y] + look_from_color], True, (0, 0, 0)),
+                        (x * 100 + 14, y * 100 + 5),
                     )
                 else:
-                    if (ix + iy) % 2 == 0:
+                    if (x + y) % 2 == 0:
                         pygame.draw.rect(
-                            self.screen, (238, 238, 210), (ix * 100, (7 - iy) * 100, 100, 100)
+                            self.screen, (238, 238, 210), ((7 - x) * 100, y * 100, 100, 100)
                         )
                     else:
                         pygame.draw.rect(
-                            self.screen, (118, 150, 86), (ix * 100, (7 - iy) * 100, 100, 100)
+                            self.screen, (118, 150, 86), ((7 - x) * 100, y * 100, 100, 100)
                         )
                     self.screen.blit(
-                        self.font.render(UNICODE_CODING[SWITCHABLE[iy] + board.color], True,(0, 0, 0)),
-                        (ix * 100 + 10, (7 - iy) * 100 + 5),
+                        self.font.render(UNICODE_CODING[SWITCHABLE[y] + look_from_color], True, (0, 0, 0)),
+                        ((7 - x) * 100 + 14, y * 100 + 5),
                     )
         pygame.display.flip()

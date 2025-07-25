@@ -38,7 +38,6 @@ class Move:
 def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
     color = board.color
     deleted_place, board[to_pos], board[from_pos] = board[to_pos], board[from_pos], 0
-    #print(board.board)
     for pos, tile in enumerate(board.board):
         if tile - color == KING:
             bishop_moves = list(bishop(board, pos))

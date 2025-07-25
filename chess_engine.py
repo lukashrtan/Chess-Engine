@@ -63,7 +63,6 @@ def capture_evaluation(board: Board, depth: int, alpha: int, beta: int, max_play
         return position_evaluation(board)
     if max_player:
         score = -99999999999
-        #print(board.white_king_pos)
         for move in sorted(capture_moves(board), key=lambda m: move_evaluation(board, m)):
             evaluation = capture_evaluation(board.clone().move(move), depth - 1, alpha, beta, False)
             score = max(score, evaluation)

@@ -3,8 +3,8 @@ import pygame
 import chess_engine
 from board import Board
 from chess_engine import computer_move
-from tile import rank7
-from constants import BLACK, UNAVAILABLE_MOVE, SWITCHABLE, UNCOLOR, PAWN, KNIGHT, QUEEN, KING, BISHOP
+from tile import rank8
+from constants import BLACK, UNAVAILABLE_MOVE, SWITCHABLE, UNCOLOR, PAWN, KNIGHT, QUEEN, KING, BISHOP, WHITE
 from drawer import Drawer
 from moves import Move, available_moves, available_moves_specific_pos, pawn, king, bishop, knight, queen
 import time
@@ -48,14 +48,14 @@ def pick_move(board: Board) -> Move:
         if len(matching_moves) == 1:
             return matching_moves[0]
         while True:
-            promo_piece = pick_promo(matching_moves[0].fr)
+            promo_piece = pick_promo(matching_moves[0].to)
             for move in matching_moves:
                 if move.promo == promo_piece:
                     return move
 
 
-def pick_promo(from_pos: int) -> int:
-    drawer.draw(board, from_pos)
+def pick_promo(to) -> int:
+    drawer.draw(board, to)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -65,9 +65,8 @@ def pick_promo(from_pos: int) -> int:
                 position = pygame.mouse.get_pos()
                 if board.color == BLACK:
                     position = (800 - position[0], 800 - position[1])
-                #print(position)
-                if position[0] // 100 == from_pos % 8:
-                    if from_pos in rank7:
+                if position[0] // 100 == to % 8:
+                    if to in rank8:
                         if position[1] // 100 not in range(len(SWITCHABLE)): continue
                         return SWITCHABLE[position[1] // 100] + board.color
                     else:
@@ -111,8 +110,8 @@ while True:
             print("draw")
 
     board.move(move)
-    drawer.draw(board)
-    #check_mate(board, board.black_king_pos)
+    drawer.draw(board, look_from_color=WHITE)
+    check_mate(board, board.black_king_pos)
     if board.color == BLACK:
         print("HRAJE CERNY")
     else:

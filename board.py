@@ -97,7 +97,7 @@ class Board:
         b.board[H8] = BLACK_ROCK
         for tile in rank7:
             b.board[tile] = BLACK_PAWN
-        # b.board[8] = WHITE_PAWN
+        # b.board[11] = WHITE_PAWN
         b.board[A1] = WHITE_ROCK
         b.board[B1] = WHITE_KNIGHT
         b.board[C1] = WHITE_BISHOP
@@ -108,7 +108,7 @@ class Board:
         b.board[H1] = WHITE_ROCK
         for tile in rank2:
             b.board[tile] = WHITE_PAWN
-        # b.board[48] = BLACK_PAWN
+        # b.board[51] = BLACK_PAWN
 
         return b
 
