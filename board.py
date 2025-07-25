@@ -58,7 +58,7 @@ class Board:
 
     def clone(self, color: int|None = None) -> "Board":
         new = Board()
-        new.board = self.board[:]
+        new.board = np.copy(self.board)
         if color is None:
             new.color = self.color
         else:

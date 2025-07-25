@@ -35,7 +35,7 @@ def computer_move(board: Board) -> Move:
 
 def recursive_evaluation(board: Board, depth: int, alpha: int, beta: int, max_player: bool) -> int:
     if depth == 0:
-        return capture_evaluation(board, 0, alpha, beta, max_player)
+        return capture_evaluation(board, 4, alpha, beta, max_player)
 
     if max_player:
         score = -99999999999
