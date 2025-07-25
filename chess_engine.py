@@ -32,6 +32,7 @@ def recursive_evaluation(board: Board, depth: int, alpha: int, beta: int, max_pl
         king = board.white_king_pos
     if depth == 0 or check_mate(board, king) == True:
         return position_evaluation(board)
+
     if max_player:
         score = -99999999999
         for move in available_moves(board):
@@ -106,9 +107,13 @@ def position_evaluation(board: Board) -> int:
         square = square * 1 if color == WHITE else square * -1
 
         evaluation += square
-
-    #if moves.check_mate(board, board.white_king_pos):
-        #square = 100000
+    try:
+        if moves.check_mate(board, board.white_king_pos):
+            square = 100000
+        if moves.check_mate(board, board.black_king_pos):
+            square = -100000
+    except:
+        ...
 
     return evaluation
 

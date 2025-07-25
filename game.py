@@ -72,6 +72,7 @@ board = Board.create_board()
 while True:
     drawer.draw(board)
     king = board.black_king_pos
+    check_mate(board, board.white_king_pos)
     if board.color == BLACK:
         print("HRAJE CERNY")
     else:
