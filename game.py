@@ -4,9 +4,9 @@ import pygame
 from board import Board
 from chess_engine import computer_move
 from tile import rank7
-from constants import BLACK, UNAVAILABLE_MOVE, SWITCHABLE, WHITE, UNCOLOR, PAWN, KNIGHT, QUEEN, KING, BISHOP
+from constants import BLACK, UNAVAILABLE_MOVE, SWITCHABLE, UNCOLOR, PAWN, KNIGHT, QUEEN, KING, BISHOP
 from drawer import Drawer
-from moves import Move, available_moves, available_moves_specific_pos, pawn, king, queen, bishop, knight, queen
+from moves import Move, available_moves, available_moves_specific_pos, pawn, king, bishop, knight, queen
 import time
 
 
@@ -95,16 +95,16 @@ board = Board.create_board()
 
 while True:
     drawer.draw(board)
-    king = board.black_king_pos
+    king_pos = board.black_king_pos
     check_mate(board, board.white_king_pos)
     if board.color == BLACK:
         print("HRAJE CERNY")
     else:
         print("HRAJE BILY")
-        king = board.white_king_pos
+        king_pos = board.white_king_pos
     move = pick_move(board)
     if move.to == UNAVAILABLE_MOVE:
-        if is_square_under_attack(board, king):
+        if is_square_under_attack(board, king_pos):
             print(f"{board.color} lost")
         else:
             print("draw")
