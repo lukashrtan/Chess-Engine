@@ -53,10 +53,13 @@ class Board:
         self.white_king_pos = 60
         self.black_king_pos = 4
 
-    def clone(self) -> "Board":
+    def clone(self, color: int|None = None) -> "Board":
         new = Board()
         new.board = self.board[:]
-        new.color = self.color
+        if color is None:
+            new.color = self.color
+        else:
+            new.color = color
         new.white_oo = self.white_oo
         new.white_ooo = self.white_ooo
         new.black_oo = self.black_oo

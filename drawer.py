@@ -20,11 +20,11 @@ class Drawer:
                 pos = y * 8 + x
                 if (x + y) % 2 == 0:
                     pygame.draw.rect(
-                        self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100)
+                        self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100)
                     )
                 else:
                     pygame.draw.rect(
-                        self.screen, (238, 238, 210), (x * 100, y * 100, 100, 100)
+                        self.screen, (118, 150, 86), (x * 100, y * 100, 100, 100)
                     )
                 self.screen.blit(
                     self.font.render(UNICODE_CODING[board[pos]], True, (0, 0, 0)),

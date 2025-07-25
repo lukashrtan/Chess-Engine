@@ -1,17 +1,20 @@
-from moves import check_mate
+from moves import check_mate, check_detection, is_square_under_attack
 from board import Board
 import pygame
-import time
 
 from board import Board
-from chess_engine import computer_move
-from constants import BLACK
+from chess_engine import computer_move, engine_move_board
+from constants import BLACK, UNAVAILABLE_MOVE
 from drawer import Drawer
 from moves import Move, available_moves
+import time
 
 
 def pick_move(board: Board) -> Move:
     from_tile = -1
+    moves = list(available_moves(board))
+    if len(moves) == 0:
+        return Move(UNAVAILABLE_MOVE, UNAVAILABLE_MOVE)
     while True:
         while True:
             if 64 > from_tile > -1 and board[from_tile] // board.color == 1:
@@ -24,7 +27,7 @@ def pick_move(board: Board) -> Move:
             continue
 
         matching_moves = [
-            move for move in available_moves(board)
+            move for move in moves
             if move.fr == from_tile and move.to == to_tile
         ]
 
@@ -68,12 +71,19 @@ board = Board.create_board()
 
 while True:
     drawer.draw(board)
-    #check_mate(board, board.white_king_pos)
+    king = board.black_king_pos
     if board.color == BLACK:
         print("HRAJE CERNY")
     else:
         print("HRAJE BILY")
-    board.move(pick_move(board))
+        king = board.white_king_pos
+    move = pick_move(board)
+    if move.to == UNAVAILABLE_MOVE:
+        if is_square_under_attack(board, king):
+            print(f"{board.color} lost")
+        else:
+            print("draw")
+    board.move(move)
 
     drawer.draw(board)
     #check_mate(board, board.black_king_pos)
