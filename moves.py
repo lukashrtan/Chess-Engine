@@ -38,6 +38,7 @@ class Move:
 def check_detection(board: Board, from_pos: int, to_pos: int) -> bool:
     color = board.color
     deleted_place, board[to_pos], board[from_pos] = board[to_pos], board[from_pos], 0
+    #print(board)
     for pos in range(len(board.board)):
         if board[pos] - color == KING:
             bishop_moves = list(bishop(board, pos))
@@ -141,6 +142,14 @@ def available_moves(board: Board) -> Generator[Move, None, None]:
             continue
         else:
             yield move
+
+def capture_moves(board: Board) -> Generator[Move, None, None]:
+    for move in available_moves(board):
+        if board[move.to] == 0:
+            continue
+        else:
+            yield move
+
 
 def available_moves_specific_pos(board: Board, positions: list[Move]) -> Generator[Move, None, None]:
     for move in positions:

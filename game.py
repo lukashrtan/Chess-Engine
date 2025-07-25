@@ -1,6 +1,6 @@
 from moves import check_mate, is_square_under_attack, rock
 import pygame
-
+import chess_engine
 from board import Board
 from chess_engine import computer_move
 from tile import rank7
@@ -65,7 +65,7 @@ def pick_promo(from_pos: int) -> int:
                 position = pygame.mouse.get_pos()
                 if board.color == BLACK:
                     position = (800 - position[0], 800 - position[1])
-                print(position)
+                #print(position)
                 if position[0] // 100 == from_pos % 8:
                     if from_pos in rank7:
                         if position[1] // 100 not in range(len(SWITCHABLE)): continue
@@ -103,20 +103,26 @@ while True:
         print("HRAJE BILY")
         king_pos = board.white_king_pos
     move = pick_move(board)
+
     if move.to == UNAVAILABLE_MOVE:
         if is_square_under_attack(board, king_pos):
             print(f"{board.color} lost")
         else:
             print("draw")
-    board.move(move)
 
-    # drawer.draw(board)
-    # #check_mate(board, board.black_king_pos)
-    # if board.color == BLACK:
-    #     print("HRAJE CERNY")
-    # else:
-    #     print("HRAJE BILY")
-    # start = time.time()
-    # board.move(computer_move(board))
-    # print(time.time()-start)
+    board.move(move)
+    drawer.draw(board)
+    #check_mate(board, board.black_king_pos)
+    if board.color == BLACK:
+        print("HRAJE CERNY")
+    else:
+        print("HRAJE BILY")
+    start = time.time()
+    chess_engine.counter = 0
+    chess_engine.counter_capture = 0
+    board.move(computer_move(board))
+    print(time.time()-start)
+    print(chess_engine.counter)
+    print(chess_engine.counter_capture)
+
 

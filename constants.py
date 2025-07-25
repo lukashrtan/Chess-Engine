@@ -35,6 +35,16 @@ SWITCH_COLOR = {
     BLACK: WHITE,
 }
 
+PIECE_VALUE = {
+    EMPTY: 0,
+    ROCK: 5,
+    PAWN: 1,
+    KING: 0,
+    QUEEN: 9,
+    KNIGHT: 3,
+    BISHOP: 3,
+}
+
 SWITCHABLE = [
     KNIGHT,
     BISHOP,
