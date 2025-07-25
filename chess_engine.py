@@ -1,7 +1,7 @@
 from moves import check_mate
 from board import Board
 from constants import BISHOP, KING, KNIGHT, PAWN, QUEEN, ROCK, UNCOLOR, WHITE, SWITCH_COLOR, EMPTY, BLACK
-from moves import (Move, all_moves, available_moves)
+from moves import (Move, available_moves)
 from tile import A8, H8, A1, H1
 
 def computer_move(board: Board) -> Move:
@@ -108,9 +108,9 @@ def position_evaluation(board: Board) -> int:
 
         evaluation += square
     try:
-        if moves.check_mate(board, board.white_king_pos):
+        if check_mate(board, board.white_king_pos):
             square = 100000
-        if moves.check_mate(board, board.black_king_pos):
+        if check_mate(board, board.black_king_pos):
             square = -100000
     except:
         ...

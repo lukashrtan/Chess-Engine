@@ -20,7 +20,7 @@ from constants import (
     UP,
     WHITE,
 )
-from tile import fileA, fileH, rank1, rank2, rank7, E1, E8
+from tile import fileA, fileH, rank1, rank2, rank7, E1, E8, rank8
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -210,7 +210,7 @@ def pawn(board: Board, pos: int) -> Generator[Move, None, None]:
             if board[pos + x * DOWN] == 0 and pos + x * DOWN < 64:
                 if pos + x * DOWN in rank1:
                     for piece in SWITCHABLE:
-                        yield Move(pos + x * DOWN, piece)
+                        yield Move(pos, pos + x * DOWN, piece + color)
                     continue
                 yield Move(pos, pos + DOWN * x)
             else:
@@ -218,13 +218,13 @@ def pawn(board: Board, pos: int) -> Generator[Move, None, None]:
         if board[pos + DOWN + LEFT] // WHITE == 1 and pos not in fileA:
             if pos + DOWN + LEFT in rank1:
                 for piece in SWITCHABLE:
-                    yield Move(pos + DOWN + LEFT, piece)
+                    yield Move(pos, pos + DOWN + LEFT, piece + color)
             else:
                 yield Move(pos, pos + DOWN + LEFT)
         if board[pos + DOWN + RIGHT] // WHITE == 1 and pos not in fileH:
             if pos + DOWN + RIGHT in rank1:
                 for piece in SWITCHABLE:
-                    yield Move(pos + DOWN + RIGHT, piece)
+                    yield Move(pos, pos + DOWN + RIGHT, piece + color)
             else:
                 yield Move(pos, pos + DOWN + RIGHT)
 
@@ -233,23 +233,23 @@ def pawn(board: Board, pos: int) -> Generator[Move, None, None]:
             jump_to = 3
         for x in range(1, jump_to):
             if board[pos + x * UP] == 0:
-                if pos + x * UP in rank1:
+                if pos + x * UP in rank8:
                     for piece in SWITCHABLE:
-                        yield Move(pos + x * UP, piece)
+                        yield Move(pos, pos + x * UP, piece + color)
                     continue
                 yield Move(pos, pos + x * UP)
             else:
                 break
         if board[pos + UP + LEFT] // BLACK == 1 and pos not in fileA:
-            if pos + UP + LEFT in rank1:
+            if pos + UP + LEFT in rank8:
                 for piece in SWITCHABLE:
-                    yield Move(pos + UP + LEFT, piece)
+                    yield Move(pos, pos + UP + LEFT, piece + color)
             else:
                 yield Move(pos, pos + UP + LEFT)
         if board[pos + UP + RIGHT] // BLACK == 1 and pos not in fileH:
-            if pos + UP + RIGHT in rank1:
+            if pos + UP + RIGHT in rank8:
                 for piece in SWITCHABLE:
-                    yield Move(pos + UP + RIGHT, piece)
+                    yield Move(pos, pos + UP + RIGHT, piece + color)
             else:
                 yield Move(pos, pos + UP + RIGHT)
 

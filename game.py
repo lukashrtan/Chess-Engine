@@ -1,12 +1,12 @@
-from moves import check_mate, check_detection, is_square_under_attack
-from board import Board
+from moves import check_mate, is_square_under_attack, rock
 import pygame
 
 from board import Board
-from chess_engine import computer_move, engine_move_board
-from constants import BLACK, UNAVAILABLE_MOVE
+from chess_engine import computer_move
+from tile import rank7
+from constants import BLACK, UNAVAILABLE_MOVE, SWITCHABLE, WHITE, UNCOLOR, PAWN, KNIGHT, QUEEN, KING, BISHOP
 from drawer import Drawer
-from moves import Move, available_moves
+from moves import Move, available_moves, available_moves_specific_pos, pawn, king, queen, bishop, knight, queen
 import time
 
 
@@ -21,6 +21,18 @@ def pick_move(board: Board) -> Move:
                 break
             from_tile = pick_square()
 
+        if board[from_tile] % UNCOLOR == PAWN:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(pawn(board, from_tile)))))
+        elif board[from_tile] % UNCOLOR == KNIGHT:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(knight(board, from_tile)))))
+        elif board[from_tile] % UNCOLOR == QUEEN:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(queen(board, from_tile)))))
+        elif board[from_tile] % UNCOLOR == KING:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(king(board, from_tile)))))
+        elif board[from_tile] % UNCOLOR == BISHOP:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(bishop(board, from_tile)))))
+        else:
+            drawer.draw(board, pos_to_move=list(available_moves_specific_pos(board, list(rock(board, from_tile)))))
         to_tile = pick_square()
         if 64 < to_tile or to_tile < -1 or board[to_tile] // board.color == 1:
             from_tile = to_tile
@@ -36,13 +48,14 @@ def pick_move(board: Board) -> Move:
         if len(matching_moves) == 1:
             return matching_moves[0]
         while True:
-            promo_piece = pick_promo()
+            promo_piece = pick_promo(matching_moves[0].fr)
             for move in matching_moves:
                 if move.promo == promo_piece:
                     return move
 
 
-def pick_promo() -> int:
+def pick_promo(from_pos: int) -> int:
+    drawer.draw(board, from_pos)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -50,8 +63,17 @@ def pick_promo() -> int:
                 return -1
             if event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
-                return position[0] // 100 + position[1] // 100 * 8
-                # TODO: some gui for promo picking
+                if board.color == BLACK:
+                    position = (800 - position[0], 800 - position[1])
+                print(position)
+                if position[0] // 100 == from_pos % 8:
+                    if from_pos in rank7:
+                        if position[1] // 100 not in range(len(SWITCHABLE)): continue
+                        return SWITCHABLE[position[1] // 100] + board.color
+                    else:
+                        if abs(position[1] // 100 - 7) not in range(len(SWITCHABLE)): continue
+                        return SWITCHABLE[abs(position[1] // 100 - 7)] + board.color
+
 
 
 def pick_square() -> int:
@@ -62,6 +84,8 @@ def pick_square() -> int:
                 return -1
             if event.type == pygame.MOUSEBUTTONDOWN:
                 position = pygame.mouse.get_pos()
+                if board.color == BLACK:
+                    position = (800 - position[0], 800 - position[1])
                 return position[0] // 100 + position[1] // 100 * 8
 
 
@@ -86,13 +110,13 @@ while True:
             print("draw")
     board.move(move)
 
-    drawer.draw(board)
-    #check_mate(board, board.black_king_pos)
-    if board.color == BLACK:
-        print("HRAJE CERNY")
-    else:
-        print("HRAJE BILY")
-    start = time.time()
-    board.move(computer_move(board))
-    print(time.time()-start)
+    # drawer.draw(board)
+    # #check_mate(board, board.black_king_pos)
+    # if board.color == BLACK:
+    #     print("HRAJE CERNY")
+    # else:
+    #     print("HRAJE BILY")
+    # start = time.time()
+    # board.move(computer_move(board))
+    # print(time.time()-start)
 
