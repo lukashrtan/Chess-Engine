@@ -45,7 +45,9 @@ from tile import (
 
 class Board:
     def __init__(self) -> None:
+        #self.board = np.array([0 for _ in range(64)])
         self.board = [0 for _ in range(64)]
+
         self.color = WHITE
         self.white_oo = True
         self.white_ooo = True
